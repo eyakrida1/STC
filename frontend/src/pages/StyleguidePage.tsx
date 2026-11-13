@@ -391,8 +391,8 @@ export function StyleguidePage() {
         {/* ───────── StatCard */}
         <Block title={sec.stats} id="sg-stats">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label={s.stats.followed} value="6" hint={s.stats.followedHint} icon={Users} />
-            <StatCard label={s.stats.insertion} value="67 %" hint={s.stats.insertionHint} icon={Route} />
+            <StatCard label={s.stats.followed} value="6" hint={s.stats.followedHint} icon={Users} trend={{ text: "+20 %", direction: "up", tone: "neutral", label: t.pages.dashboard.trendLabel("+20 %") }} />
+            <StatCard label={s.stats.insertion} value="67 %" hint={s.stats.insertionHint} icon={Route} trend={{ text: t.pages.dashboard.pts(-5), direction: "down", tone: "bad", label: t.pages.dashboard.trendLabel(t.pages.dashboard.pts(-5)) }} />
             <StatCard label={s.stats.returned} value="1" hint={s.stats.returnedHint} icon={CalendarCheck} />
             <StatCard label={s.stats.pending} value="2" hint={s.stats.pendingHint} icon={AlertTriangle} tone="attention" />
           </div>

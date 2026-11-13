@@ -23,4 +23,4 @@ export {
   validateRoadmapPart,
 } from "./roadmap"
 export * from "./sessions"
-export { getDashboardStats, type DashboardStats, type StatsPeriod } from "./stats"
+export { getDashboardStats, PERIOD_DAYS, type DashboardStats, type Kpi, type StatsPeriod } from "./stats"

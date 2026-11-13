@@ -58,20 +58,21 @@ export function ChildPage() {
 
   const setChild = (child: Child) => setData((d) => (d ? { ...d, child } : d))
 
+  // retour : « Mes enfants » pour les intervenants, « Tableau de bord » pour le directeur
   const back = (
     <Link
-      to="/enfants"
+      to={isProfessional(user.role) ? "/enfants" : "/tableau-de-bord"}
       className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-md text-sm font-medium text-ink-muted hover:text-ink"
     >
       <ArrowLeft className="size-4 rtl:rotate-180" aria-hidden />
-      {p.backToList}
+      {isProfessional(user.role) ? p.backToList : t.pages.dashboard.title}
     </Link>
   )
 
   if (error) {
     return (
       <>
-        {isProfessional(user.role) && back}
+        {back}
         <div className="rounded-card border border-line bg-surface shadow-card">
           <EmptyState
             icon={error === "not_found" ? FileQuestion : TriangleAlert}
@@ -104,7 +105,7 @@ export function ChildPage() {
 
   return (
     <div className="flex flex-col">
-      {isProfessional(user.role) && back}
+      {back}
       <ChildHero child={data.child} team={data.team} onChildChange={setChild} />
       <ChildTabs childId={data.child.id} active={activeTab} unreadNotes={data.unreadNotes} />
 

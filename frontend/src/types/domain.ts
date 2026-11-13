@@ -449,6 +449,18 @@ export interface AidApplication {
   missingDocuments: string
 }
 
+/**
+ * Dossier clos (archivé) : séjour terminé d'un enfant qui n'est plus suivi.
+ * Anonymisé : seules les dates et la destination servent aux statistiques de la direction.
+ */
+export interface ClosedStay {
+  id: string
+  poleId: string
+  entryDate: ISODate
+  exitDate: ISODate
+  exitDestination: ExitDestination
+}
+
 // ───────────────────────────── Notifications & audit
 export type NotificationKind = "note_recue" | "validation_attendue" | "absence" | "roadmap_mise_a_jour"
 

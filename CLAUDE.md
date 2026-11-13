@@ -42,7 +42,7 @@ frontend/src/
   components/ui/  composants shadcn (générés, mode RTL) — modifier avec parcimonie
   components/cdis/ composants partagés CDIS
   components/shell/ coque (AppShell, Logo, NotificationsMenu, UserMenu)
-  pages/          pages (aujourd'hui : Login, Profil, Styleguide, provisoires)
+  pages/          pages : connexion, Mes enfants (children/), dossier (child/), tableau de bord (dashboard/), profil, styleguide
   styles/tokens.css design tokens (variables CSS)
 ```
 
@@ -108,7 +108,7 @@ espacements multiples de 4, largeur max du contenu 1200 px (`max-w-page`), icôn
 | `RoadmapRoad` | la roadmap **dessinée** (zone pop) : route SVG sinueuse, 5 panneaux de phase (franchies colorées, à venir en pointillés), avatar posé sur la route qui avance une fois (~1,5 s), fanions par partie (`RoadFlag` : pleins = atteints et datés, contour = prochains pas ; clic/Entrée → info-bulle), détour « Retour au centre », légende ; horizontale ≥ 640 px, verticale en dessous ; géométrie calculée par `lib/pathSampler.ts` (pur, sans DOM) |
 | `AvatarLive` | **avatar vivant** de l'en-tête du dossier (zone pop) : portrait 160 px (`src` = `childPortraitSrc(identity)`), halo animé couleur d'humeur (respiration lente 1-2, immobile 3, pulsation + étincelles 4-5), bulles pop en orbite (`buildBubbles(interests)`, 8 max, icône + mot, info-bulle) qui n'empiètent jamais sur le portrait ; sous 640 px les bulles passent en ligne sous le portrait ; `footer` = MoodBadge. Tout est coupé si `prefers-reduced-motion` |
 | `TextField`, `TextareaField`, `SelectField`, `CheckboxField`, `TagsField`, `FieldGroup`, `Field` | champs de formulaire (`form.tsx`) : libellé visible, aide, erreur reliée par `aria-describedby`, hauteur 44 px |
-| `StatCard` | chiffre clé ; `tone="attention"` |
+| `StatCard` | chiffre clé ; `tone="attention"` ; `trend` (flèche + texte + phrase lecteur d’écran ; ton good / bad / neutral selon le sens métier) |
 | `EmptyState` | icône + phrase + action |
 | `NoteCard` | note partagée reçue : avatar + `RoleBadge` de l’auteur, « partagée le 12/11 à 14 h », séance d’origine, texte replié au-delà de 4 lignes ; `unread` (liseré couleur du rôle) + `onOpen` (marque lue) ; `expanded`/`onExpandedChange` pour garder l’état quand la carte change de liste |
 | `UnreadDivider` | trait « Nouvelles » (`tone="new"`) / « Déjà lues » |
@@ -167,7 +167,7 @@ doit y être ajouté.**
 | `/` | connecté | redirige selon le rôle |
 | `/enfants` | intervenants | fait — Mes enfants (`pages/children/`) |
 | `/enfants/:childId/:tab?/:section?` | intervenants assignés + directeur (lecture) | fait — dossier enfant (`pages/child/`) ; les 4 onglets sont remplis |
-| `/tableau-de-bord` | directeur | provisoire (page vide) |
+| `/tableau-de-bord` (`?periode=` mois, trimestre ou année) | directeur (les autres rôles sont redirigés vers leur accueil) | fait — `pages/dashboard/` |
 | `/profil` | tous | fait — photo (aperçu), infos modifiables, CIN / rôle / pôle verrouillés, mot de passe (≥ 10 car.) |
 
 ### Mes enfants (`pages/children/`)
@@ -242,3 +242,16 @@ Définies dans `sections.ts` (`SECTIONS_BY_ROLE`) ; une sous-section non autoris
   (ordre fixe par échelle), légende = filtres cliquables, point → consultation, vue tableau obligatoire (contraste).
 - Aides (`AidsPanel`, social) : inscriptions avec statut, dates (dépôt obligatoire si déposé, décision si accordé /
   refusé), pièces manquantes ; la mise à jour remonte à `ChildPage` → carte « Situation économique ».
+
+### Tableau de bord du directeur (`pages/dashboard/`)
+
+- Style SOBRE (pas de pop) : lisible en 10 secondes. Filtre de période (mois / trimestre / année, dans l'URL `?periode=`)
+  appliqué à tout ; chaque chiffre clé compare à la période précédente de même durée (`Kpi { value, previous }`).
+- Tous les chiffres viennent de `api.getDashboardStats(period)` (`api/stats.ts`), calculés sur les données de démo,
+  y compris `archives` (`ClosedStay` : dossiers clos anonymisés, seulement dates + destination, jamais listés ailleurs).
+- Graphiques Recharts (`charts.tsx`) : barres horizontales avec la valeur au bout, courbe à une seule série ; couleurs
+  des tokens (phases, rôles, sarcelle) ; info-bulles en français ; pas de 3D ni de camembert ; humeur = moyenne du
+  centre seulement. Équipe : « pour équilibrer la charge, pas pour noter les personnes ».
+- Alertes (en tête sur mobile) : sans séance depuis 21 jours → dossier ; validation de roadmap > 7 jours → onglet
+  Roadmap. Le directeur y est en lecture seule (Dossier + Roadmap, aucun bouton d'action, retour « Tableau de bord »).
+- Accès : `RequireAuth` redirige tout rôle non autorisé vers sa page d'accueil avec un toast « Accès non autorisé ».

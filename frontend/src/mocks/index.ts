@@ -7,12 +7,14 @@ import type {
   AttendanceEntry,
   AuditEntry,
   Child,
+  ClosedStay,
   Pole,
   Roadmap,
   Session,
   User,
 } from "@/types"
 import { AID_PROGRAMS, buildActivities, buildAidApplications, buildAttendance, buildNotifications } from "./activity"
+import { buildArchives } from "./archives"
 import { buildChildren } from "./children"
 import { buildRoadmaps } from "./roadmaps"
 import { buildSessions } from "./sessions"
@@ -33,9 +35,10 @@ export interface DemoDatabase {
   aidApplications: AidApplication[]
   notifications: AppNotification[]
   audit: AuditEntry[]
+  archives: ClosedStay[]
 }
 
-export const DEMO_DB_VERSION = 4
+export const DEMO_DB_VERSION = 5
 
 export function buildSeed(): DemoDatabase {
   const children = buildChildren()
@@ -54,5 +57,6 @@ export function buildSeed(): DemoDatabase {
     aidApplications: buildAidApplications(),
     notifications: buildNotifications(),
     audit: [],
+    archives: buildArchives(),
   }
 }
