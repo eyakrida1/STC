@@ -62,7 +62,7 @@ export function buildSessions(): Session[] {
       childId: "c-yassine",
       role: "educateur",
       date: daysAgo(20),
-      details: { kind: "observation", context: "Atelier électricité", durationMin: 90 },
+      details: { kind: "observation", context: "Atelier électricité", durationMin: 90, skillsObserved: ["Patience", "Travail en équipe"] },
       shared: {
         text: "Très appliqué à l'atelier, a aidé un camarade à câbler un interrupteur.",
         to: [
@@ -158,7 +158,7 @@ export function buildSessions(): Session[] {
       childId: "c-hamza",
       role: "educateur",
       date: daysAgo(3),
-      details: { kind: "observation", context: "Atelier cuisine", durationMin: 120 },
+      details: { kind: "observation", context: "Atelier cuisine", durationMin: 120, skillsObserved: ["Respect des consignes"] },
       ai: { text: "Très motivé en cuisine, respecte les consignes d'hygiène." },
     },
 
@@ -168,7 +168,7 @@ export function buildSessions(): Session[] {
       childId: "c-nour",
       role: "educateur",
       date: daysAgo(4),
-      details: { kind: "observation", context: "Stage découverte en pâtisserie", durationMin: 240 },
+      details: { kind: "observation", context: "Stage découverte en pâtisserie", durationMin: 240, skillsObserved: ["Ponctualité", "Autonomie"] },
       shared: {
         text: "Retour très positif du pâtissier : ponctuelle toute la semaine.",
         to: [

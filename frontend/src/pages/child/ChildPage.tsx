@@ -12,6 +12,8 @@ import { ChildHero, type TeamMember } from "./ChildHero"
 import { ChildTabs } from "./ChildTabs"
 import { resolveTab } from "./tabs"
 import { DossierTab } from "./dossier/DossierTab"
+import { NotesTab } from "./notes/NotesTab"
+import { SpaceTab } from "./space/SpaceTab"
 
 export interface ChildPageData {
   child: Child
@@ -102,6 +104,10 @@ export function ChildPage() {
       <section aria-label={`${name} — ${activeTab === "dossier" ? p.tabs.dossier : activeTab === "roadmap" ? p.tabs.roadmap : activeTab === "notes" ? p.tabs.notes : p.tabs.space[user.role as "educateur"]}`} className="pt-6">
         {activeTab === "dossier" ? (
           <DossierTab data={data} onChildChange={setChild} />
+        ) : activeTab === "espace" ? (
+          <SpaceTab child={data.child} team={data.team} onChildChange={setChild} />
+        ) : activeTab === "notes" ? (
+          <NotesTab childId={data.child.id} onUnreadChange={(n) => setData((d) => (d ? { ...d, unreadNotes: n } : d))} />
         ) : (
           <div className="rounded-card border border-line bg-surface shadow-card">
             <EmptyState icon={Construction} title={p.tabs.soonTitle} description={p.tabs.soonText} />

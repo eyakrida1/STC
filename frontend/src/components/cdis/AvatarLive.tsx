@@ -96,7 +96,7 @@ function Portrait({ src, alt, mood }: { src: string; alt: string; mood: MoodLeve
       <div aria-hidden className="absolute rounded-full" style={{ width: PORTRAIT + 12, height: PORTRAIT + 12, backgroundColor: color }} />
       {lively && <Sparkles color={color} />}
       <motion.img
-        key={src}
+        key={`${src}-${mood}`} // l'humeur change : le portrait « rebondit » doucement
         src={src}
         alt={alt}
         draggable={false}

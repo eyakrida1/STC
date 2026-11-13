@@ -231,7 +231,8 @@ export interface VisitDetails {
 export interface ObservationDetails {
   kind: "observation"
   context: string // activité ou moment observé
-  durationMin: number
+  durationMin: number | null
+  skillsObserved: string[] // compétences observées (chips)
 }
 
 export type SessionDetails = ConsultationDetails | VisitDetails | ObservationDetails
@@ -261,6 +262,27 @@ export interface Session {
   aiNote: AiNote | null // personne d'autre ; sert à la roadmap
 }
 
+/** Résultat d'un enregistrement : la séance, l'enfant à jour (humeur) et si l'IA a proposé une mise à jour. */
+export interface SessionResult {
+  session: Session
+  child: Child
+  roadmapProposed: boolean
+}
+
+/** Modification d'une séance par son auteur (24 h) : les zones déjà remplies ne peuvent pas être vidées. */
+export interface SessionUpdate {
+  date: ISODate
+  details: SessionDetails
+  privateNote: string | null
+  sharedNote: { text: string; recipientIds: string[] } | null
+  aiNote: string | null
+}
+
+export interface AiNoteStatus {
+  pending: number // notes pour l'IA pas encore utilisées
+  threshold: number // seuil de mise à jour automatique
+}
+
 export interface NewSession {
   childId: string
   date: ISODate
@@ -277,6 +299,7 @@ export interface ReceivedNote {
   authorId: string
   authorName: string
   authorRole: ProfessionalRole
+  authorAvatarSeed: string
   sessionKind: SessionKind
   sessionDate: ISODate
   sharedAt: ISODateTime

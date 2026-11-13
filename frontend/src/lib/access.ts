@@ -98,6 +98,16 @@ export function canEditAids(role: Role): boolean {
 /** Une note se corrige pendant 24 h par son auteur ; elle ne se supprime jamais. */
 export const SESSION_EDIT_WINDOW_MS = 24 * 60 * 60 * 1000
 
+/** Temps restant (ms) pour corriger une séance ; 0 si le délai de 24 h est passé. */
+export function sessionEditRemainingMs(session: { createdAt: string }, now = Date.now()): number {
+  return Math.max(0, new Date(session.createdAt).getTime() + SESSION_EDIT_WINDOW_MS - now)
+}
+
+/** L'auteur peut corriger sa séance pendant 24 h (l'api vérifie aussi qu'il est l'auteur). */
+export function canEditSession(session: { createdAt: string }, now = Date.now()): boolean {
+  return sessionEditRemainingMs(session, now) > 0
+}
+
 /** Déconnexion automatique (postes partagés). */
 export const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000
 

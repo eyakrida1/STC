@@ -54,6 +54,16 @@
   --color-phase-5-soft: var(--cdis-phase-5-soft);
   --color-phase-5-ink: var(--cdis-phase-5-ink);
 
+  --color-zone-private: var(--cdis-zone-private);
+  --color-zone-private-soft: var(--cdis-zone-private-soft);
+  --color-zone-private-ink: var(--cdis-zone-private-ink);
+  --color-zone-shared: var(--cdis-zone-shared);
+  --color-zone-shared-soft: var(--cdis-zone-shared-soft);
+  --color-zone-shared-ink: var(--cdis-zone-shared-ink);
+  --color-zone-ai: var(--cdis-zone-ai);
+  --color-zone-ai-soft: var(--cdis-zone-ai-soft);
+  --color-zone-ai-ink: var(--cdis-zone-ai-ink);
+
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: var(--cdis-radius);

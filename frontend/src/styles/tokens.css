@@ -52,6 +52,17 @@
   --cdis-phase-5-soft: #e3f3e6;
   --cdis-phase-5-ink: #2c6637;
 
+  /* Les 3 sorties d'une séance : repère (bordure, icône), fond doux, texte (AA sur le fond doux) */
+  --cdis-zone-private: #6b7280; /* Notes privées — gris, cadenas */
+  --cdis-zone-private-soft: #f3f4f6;
+  --cdis-zone-private-ink: #374151;
+  --cdis-zone-shared: #0284c7; /* À partager — bleu, personnes */
+  --cdis-zone-shared-soft: #e6f4fc;
+  --cdis-zone-shared-ink: #075985;
+  --cdis-zone-ai: #8b5cf6; /* Pour l'IA — violet, étincelle */
+  --cdis-zone-ai-soft: #f3eeff;
+  --cdis-zone-ai-ink: #5b21b6;
+
   /* Forme */
   --cdis-radius: 12px;
   --cdis-radius-card: 16px;

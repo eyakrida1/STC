@@ -35,7 +35,7 @@ export interface DemoDatabase {
   audit: AuditEntry[]
 }
 
-export const DEMO_DB_VERSION = 2
+export const DEMO_DB_VERSION = 3
 
 export function buildSeed(): DemoDatabase {
   const children = buildChildren()

@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useI18n } from "@/i18n/context"
+import { useDataChanged } from "@/lib/events"
 import { formatRelative } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
@@ -28,12 +29,17 @@ export function NotificationsMenu() {
     return () => window.clearInterval(id)
   }, [load])
 
+  // une note lue, une séance partagée… : la cloche se met à jour sans attendre
+  useDataChanged(load)
+
   const unread = items.filter((n) => !n.readAt).length
 
   const open = async (n: api.NotificationView) => {
     if (!n.readAt) await api.markNotificationRead(n.id)
     load()
-    if (n.childId) navigate(`/enfants/${n.childId}`)
+    // chaque notification ouvre l'onglet utile du dossier
+    const tab = n.kind === "note_recue" ? "/notes" : n.kind === "validation_attendue" || n.kind === "roadmap_mise_a_jour" ? "/roadmap" : ""
+    if (n.childId) navigate(`/enfants/${n.childId}${tab}`)
   }
 
   return (

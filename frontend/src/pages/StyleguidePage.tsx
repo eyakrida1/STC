@@ -410,6 +410,7 @@ export function StyleguidePage() {
             <NoteCard
               authorName={s.noteSamples[0].author}
               authorRole={s.noteSamples[0].role}
+              authorAvatarSeed="leila-haddad"
               sharedAt={SAMPLE_DATES[0]}
               sessionLabel={s.noteSamples[0].session}
               text={s.noteSamples[0].text}
@@ -420,6 +421,7 @@ export function StyleguidePage() {
             <NoteCard
               authorName={s.noteSamples[1].author}
               authorRole={s.noteSamples[1].role}
+              authorAvatarSeed="sami-ayari"
               sharedAt={SAMPLE_DATES[1]}
               sessionLabel={s.noteSamples[1].session}
               text={s.noteSamples[1].text}

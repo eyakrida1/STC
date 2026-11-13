@@ -64,6 +64,7 @@ couleur en dur dans un composant.
 | Rôles | éducateur #D97706, psychologue #7C3AED, social #2563EB, directeur #0F766E | `bg-role-{educateur,psychologue,social,directeur}` |
 | Humeur 1→5 | #EF4444, #F97316, #A3A3A3, #22C55E, #10B981 | `bg-mood-1` … `bg-mood-5` |
 | Phases 1→5 | repère / fond doux / texte | `bg-phase-N`, `bg-phase-N-soft`, `text-phase-N-ink` |
+| 3 sorties d'une séance | privé gris #6B7280 · à partager bleu #0284C7 · pour l'IA violet #8B5CF6 (+ `-soft`, `-ink`) | `bg-zone-{private,shared,ai}`, `bg-zone-…-soft`, `text-zone-…-ink` |
 
 Phases : 1 Inscription (bleu ardoise) · 2 Orientation et évaluation (ambre) · 3 Accompagnement multidisciplinaire
 (lavande) · 4 Évaluation continue et ajustement (bleu-vert) · 5 Insertion (sauge).
@@ -108,7 +109,7 @@ espacements multiples de 4, largeur max du contenu 1200 px (`max-w-page`), icôn
 | `TextField`, `TextareaField`, `SelectField`, `CheckboxField`, `TagsField`, `FieldGroup`, `Field` | champs de formulaire (`form.tsx`) : libellé visible, aide, erreur reliée par `aria-describedby`, hauteur 44 px |
 | `StatCard` | chiffre clé ; `tone="attention"` |
 | `EmptyState` | icône + phrase + action |
-| `NoteCard` | note partagée reçue ; `unread` + `onOpen` (marque lue) |
+| `NoteCard` | note partagée reçue : avatar + `RoleBadge` de l’auteur, « partagée le 12/11 à 14 h », séance d’origine, texte replié au-delà de 4 lignes ; `unread` (liseré couleur du rôle) + `onOpen` (marque lue) ; `expanded`/`onExpandedChange` pour garder l’état quand la carte change de liste |
 | `UnreadDivider` | trait « Nouvelles » (`tone="new"`) / « Déjà lues » |
 | `ChildAvatar` | petit avatar enfant (cartes, listes) : image ronde + halo couleur d’humeur ; `size` sm 40 / md 64 / lg 96 / xl 160 px, `sex`. Pour l'en-tête du dossier, utiliser `AvatarLive` |
 | `UserAvatar` | photo d'un intervenant (sobre) |
@@ -163,7 +164,7 @@ doit y être ajouté.**
 | `/styleguide` | public | fait |
 | `/` | connecté | redirige selon le rôle |
 | `/enfants` | intervenants | fait — Mes enfants (`pages/children/`) |
-| `/enfants/:childId/:tab?` | intervenants assignés + directeur (lecture) | fait — dossier enfant (`pages/child/`) ; onglet Dossier rempli, les autres « bientôt » |
+| `/enfants/:childId/:tab?` | intervenants assignés + directeur (lecture) | fait — dossier enfant (`pages/child/`) ; Dossier, Mon espace et Notes reçues remplis ; Roadmap « bientôt » |
 | `/tableau-de-bord` | directeur | provisoire (page vide) |
 | `/profil` | tous | version simple (lecture) |
 
@@ -193,3 +194,15 @@ doit y être ajouté.**
   Annuler / Enregistrer, toast). Santé et Judiciaire : repliées, `sensitive`, `api.logBlockOpened` à chaque ouverture.
 - Scolarité : niveaux numériques `SchoolGrade` 1 → 13 (1re année de base → 4e secondaire), libellés dans
   `fr.ts > pages.child.grades` ; l'écart est calculé (jamais stocké).
+
+### Mon espace et Notes reçues (`pages/child/space/`, `pages/child/notes/`)
+
+- Mon espace : `api.listMySessions` (auteur seul), liste chronologique, détail en panneau (`SessionDetailSheet`),
+  formulaire `SessionSheet` (panneau large) : champs du rôle en haut, 3 zones `NoteZone` (privé / à partager / IA),
+  au moins une remplie ; zone partagée verrouillée sans destinataire ; compteur IA via `api.getAiNoteStatus`.
+  `createSession` / `updateMySession` renvoient `SessionResult` (séance + enfant à jour + `roadmapProposed`).
+  Correction 24 h (`canEditSession`), jamais de suppression : une zone remplie ne peut pas être vidée.
+- Notes reçues : « Nouvelles (n) » / « Déjà lues », `markNoteRead` / `markAllNotesRead` (par lecteur) ;
+  la notification « note reçue » est lue quand plus aucune note de l'enfant n'est non lue.
+- Synchronisation : `lib/events.ts` (`emitDataChanged` / `useDataChanged`) rafraîchit la cloche ;
+  le compteur d'onglet est remonté à `ChildPage`.
