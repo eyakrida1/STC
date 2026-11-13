@@ -1,0 +1,122 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "./styles/tokens.css";
+
+/* Pas de thème sombre dans le POC : les classes dark: de shadcn ne s'activent qu'avec une classe .dark (jamais posée),
+   et non selon prefers-color-scheme. */
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Pont Tailwind ↔ tokens CDIS.
+ * Toutes les valeurs viennent de styles/tokens.css : ne jamais coder une couleur en dur ailleurs.
+ */
+@theme inline {
+  --font-sans: "Rubik", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+
+  /* Tokens CDIS */
+  --color-sand: var(--cdis-sand);
+  --color-surface: var(--cdis-surface);
+  --color-line: var(--cdis-line);
+  --color-ink: var(--cdis-ink);
+  --color-ink-muted: var(--cdis-ink-muted);
+  --color-teal: var(--cdis-teal);
+  --color-teal-soft: var(--cdis-teal-soft);
+  --color-pop-coral: var(--cdis-pop-coral);
+  --color-pop-sun: var(--cdis-pop-sun);
+  --color-pop-sky: var(--cdis-pop-sky);
+
+  --color-role-educateur: var(--cdis-role-educateur);
+  --color-role-psychologue: var(--cdis-role-psychologue);
+  --color-role-social: var(--cdis-role-social);
+  --color-role-directeur: var(--cdis-role-directeur);
+
+  --color-mood-1: var(--cdis-mood-1);
+  --color-mood-2: var(--cdis-mood-2);
+  --color-mood-3: var(--cdis-mood-3);
+  --color-mood-4: var(--cdis-mood-4);
+  --color-mood-5: var(--cdis-mood-5);
+
+  --color-phase-1: var(--cdis-phase-1);
+  --color-phase-1-soft: var(--cdis-phase-1-soft);
+  --color-phase-1-ink: var(--cdis-phase-1-ink);
+  --color-phase-2: var(--cdis-phase-2);
+  --color-phase-2-soft: var(--cdis-phase-2-soft);
+  --color-phase-2-ink: var(--cdis-phase-2-ink);
+  --color-phase-3: var(--cdis-phase-3);
+  --color-phase-3-soft: var(--cdis-phase-3-soft);
+  --color-phase-3-ink: var(--cdis-phase-3-ink);
+  --color-phase-4: var(--cdis-phase-4);
+  --color-phase-4-soft: var(--cdis-phase-4-soft);
+  --color-phase-4-ink: var(--cdis-phase-4-ink);
+  --color-phase-5: var(--cdis-phase-5);
+  --color-phase-5-soft: var(--cdis-phase-5-soft);
+  --color-phase-5-ink: var(--cdis-phase-5-ink);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: var(--cdis-radius);
+  --radius-xl: var(--cdis-radius-card);
+  --radius-2xl: 20px;
+  --radius-card: var(--cdis-radius-card);
+
+  --shadow-card: var(--cdis-shadow-card);
+  --shadow-raised: var(--cdis-shadow-raised);
+
+  --container-page: 75rem; /* 1200 px */
+
+  /* Variables attendues par shadcn/ui */
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/60;
+  }
+  html {
+    @apply font-sans antialiased;
+  }
+  body {
+    @apply bg-background text-foreground;
+    min-height: 100dvh;
+  }
+  /* Focus visible partout, y compris sur les éléments natifs non stylés */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  /* Icônes lucide : trait 1,75 */
+  svg.lucide {
+    stroke-width: 1.75;
+  }
+}
+
+/* Respect strict de prefers-reduced-motion (Motion le gère aussi via MotionConfig) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

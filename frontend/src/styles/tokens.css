@@ -1,0 +1,81 @@
+/*
+ * CDIS — design tokens (source unique).
+ * Exposés à Tailwind dans index.css (@theme) : bg-sand, text-ink, bg-role-psychologue, bg-mood-4, bg-phase-3-soft…
+ * Règle : la « pop » (pop-coral, pop-sun, pop-sky, animations) est réservée à l'avatar enfant et à la roadmap.
+ */
+:root {
+  /* Surfaces & texte */
+  --cdis-sand: #faf7f2;
+  --cdis-surface: #ffffff;
+  --cdis-line: #ece6dc;
+  --cdis-line-strong: #9c9285; /* bordure de champ : contraste 3:1 sur blanc */
+  --cdis-ink: #1f2a37;
+  --cdis-ink-muted: #6b7280;
+
+  /* Primaire */
+  --cdis-teal: #0f766e;
+  --cdis-teal-hover: #0d645d;
+  --cdis-teal-soft: #e6f2f1;
+
+  /* Accents « pop » — avatar et roadmap uniquement */
+  --cdis-pop-coral: #f97360;
+  --cdis-pop-sun: #f5b700;
+  --cdis-pop-sky: #38bdf8;
+
+  /* Rôles — pastilles et repères uniquement (jamais en couleur de texte) */
+  --cdis-role-educateur: #d97706;
+  --cdis-role-psychologue: #7c3aed;
+  --cdis-role-social: #2563eb;
+  --cdis-role-directeur: #0f766e;
+
+  /* Humeur générale (5 niveaux) */
+  --cdis-mood-1: #ef4444;
+  --cdis-mood-2: #f97316;
+  --cdis-mood-3: #a3a3a3;
+  --cdis-mood-4: #22c55e;
+  --cdis-mood-5: #10b981;
+
+  /* Phases du parcours : repère (point, frise), fond doux, texte (AA sur le fond doux) */
+  --cdis-phase-1: #6b8bc0; /* Inscription */
+  --cdis-phase-1-soft: #e8eef7;
+  --cdis-phase-1-ink: #2f4d7a;
+  --cdis-phase-2: #d9a03a; /* Orientation et évaluation */
+  --cdis-phase-2-soft: #fbf0d9;
+  --cdis-phase-2-ink: #7a4f00;
+  --cdis-phase-3: #9b7fd4; /* Accompagnement multidisciplinaire */
+  --cdis-phase-3-soft: #efe9f9;
+  --cdis-phase-3-ink: #563a99;
+  --cdis-phase-4: #3fa7b5; /* Évaluation continue et ajustement */
+  --cdis-phase-4-soft: #e0f2f4;
+  --cdis-phase-4-ink: #0e5f6b;
+  --cdis-phase-5: #5bae6b; /* Insertion */
+  --cdis-phase-5-soft: #e3f3e6;
+  --cdis-phase-5-ink: #2c6637;
+
+  /* Forme */
+  --cdis-radius: 12px;
+  --cdis-radius-card: 16px;
+  --cdis-shadow-card: 0 1px 2px rgb(31 42 55 / 0.04), 0 1px 3px rgb(31 42 55 / 0.03);
+  --cdis-shadow-raised: 0 4px 16px rgb(31 42 55 / 0.08);
+
+  /* Variables shadcn/ui, branchées sur les tokens CDIS */
+  --radius: var(--cdis-radius);
+  --background: var(--cdis-sand);
+  --foreground: var(--cdis-ink);
+  --card: var(--cdis-surface);
+  --card-foreground: var(--cdis-ink);
+  --popover: var(--cdis-surface);
+  --popover-foreground: var(--cdis-ink);
+  --primary: var(--cdis-teal);
+  --primary-foreground: #ffffff;
+  --secondary: #f3eee6;
+  --secondary-foreground: var(--cdis-ink);
+  --muted: #f3eee6;
+  --muted-foreground: var(--cdis-ink-muted);
+  --accent: #f3eee6;
+  --accent-foreground: var(--cdis-ink);
+  --destructive: #b91c1c;
+  --border: var(--cdis-line);
+  --input: var(--cdis-line-strong);
+  --ring: var(--cdis-teal);
+}

@@ -1,0 +1,401 @@
+/**
+ * Tous les textes de l'interface. Une seule langue pour l'instant ; ar.ts reprendra la même forme (type Dictionary).
+ * Aucune chaîne visible ne doit être écrite en dur dans un composant.
+ */
+import type {
+  AidStatus,
+  AttendanceStatus,
+  ChildBlock,
+  ChildStatus,
+  ConsultationType,
+  ExitDestination,
+  Housing,
+  MoodLevel,
+  MoodScaleKey,
+  NotificationKind,
+  PhaseId,
+  ReferralSource,
+  Role,
+  RoadmapPartKey,
+  SessionKind,
+  VisitLocation,
+} from "@/types"
+
+const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`
+
+export const fr = {
+  app: {
+    name: "CDIS",
+    fullName: "CDIS — Dossier enfant",
+    tagline: "Centres de Défense et d'Inclusion Sociale",
+    skipToContent: "Aller au contenu",
+    loading: "Chargement…",
+  },
+
+  common: {
+    save: "Enregistrer",
+    cancel: "Annuler",
+    close: "Fermer",
+    edit: "Modifier",
+    open: "Ouvrir",
+    back: "Retour",
+    seeAll: "Tout voir",
+    yes: "Oui",
+    no: "Non",
+    none: "Aucun",
+    notProvided: "Non renseigné",
+    editedBy: "Modifié par",
+    readOnly: "Lecture seule",
+    comingSoon: "Bientôt disponible",
+    years: (n: number) => plural(n, "an", "ans"),
+    age: (n: number) => `${n} ans`,
+    new: "Nouveau",
+    lastUpdate: (date: string) => `Mis à jour le ${date}`,
+    expand: "Afficher",
+    collapse: "Masquer",
+  },
+
+  roles: {
+    educateur: "Éducateur",
+    psychologue: "Psychologue",
+    social: "Intervenant social",
+    directeur: "Directeur",
+  } satisfies Record<Role, string>,
+
+  phases: {
+    long: {
+      1: "Inscription",
+      2: "Orientation et évaluation",
+      3: "Accompagnement multidisciplinaire",
+      4: "Évaluation continue et ajustement",
+      5: "Insertion",
+    } satisfies Record<PhaseId, string>,
+    short: {
+      1: "Inscription",
+      2: "Orientation",
+      3: "Accompagnement",
+      4: "Évaluation continue",
+      5: "Insertion",
+    } satisfies Record<PhaseId, string>,
+    label: "Phase du parcours",
+  },
+
+  moods: {
+    1: "Très difficile",
+    2: "Difficile",
+    3: "Neutre",
+    4: "Bien",
+    5: "Très bien",
+  } satisfies Record<MoodLevel, string>,
+  moodLabel: "Humeur générale",
+
+  childStatus: {
+    present: "Présent",
+    sorti: "Sorti",
+  } satisfies Record<ChildStatus, string>,
+  returned: "Revenu au centre",
+
+  referral: {
+    delegue_protection: "Délégué à la protection de l'enfance",
+    famille: "Famille",
+    ecole: "École",
+    juge: "Juge des enfants",
+    association: "Association",
+    autre: "Autre",
+  } satisfies Record<ReferralSource, string>,
+
+  exitDestinations: {
+    ecole: "École",
+    formation: "Formation",
+    emploi: "Emploi",
+    famille: "Famille",
+    autre_structure: "Autre structure",
+    abandon: "Abandon",
+  } satisfies Record<ExitDestination, string>,
+
+  housing: {
+    proprietaire: "Propriétaire",
+    locataire: "Locataire",
+    heberge: "Hébergé",
+    precaire: "Logement précaire",
+  } satisfies Record<Housing, string>,
+
+  blocks: {
+    identity: "Identité",
+    journey: "Parcours",
+    family: "Famille",
+    economic: "Situation économique",
+    schooling: "Scolarité",
+    health: "Santé",
+    legal: "Situation judiciaire",
+    interests: "Intérêts et compétences",
+    mood: "Humeur",
+    consent: "Consentement",
+  } satisfies Record<ChildBlock, string>,
+  auditNotice: "L'ouverture de ce bloc est enregistrée dans le journal d'audit.",
+
+  sessions: {
+    kinds: {
+      consultation: "Consultation",
+      visite: "Visite familiale",
+      observation: "Observation",
+    } satisfies Record<SessionKind, string>,
+    consultationTypes: {
+      initiale: "Initiale",
+      suivi: "Suivi",
+      crise: "Crise",
+    } satisfies Record<ConsultationType, string>,
+    visitLocations: {
+      domicile: "Domicile",
+      centre: "Centre",
+      autre: "Autre lieu",
+    } satisfies Record<VisitLocation, string>,
+    privateNote: "Notes privées",
+    privateNoteHint: "Vous seul pouvez les lire.",
+    sharedNote: "Note à partager",
+    sharedNoteHint: "Lue par les destinataires que vous cochez.",
+    aiNote: "Note pour l'IA",
+    aiNoteHint: "Personne d'autre ne la lit ; elle sert à mettre à jour la roadmap.",
+    from: (kind: string, date: string) => `${kind} du ${date}`,
+  },
+
+  scales: {
+    humeur: "Humeur générale",
+    anxiete: "Anxiété",
+    confiance: "Confiance en soi",
+    colere: "Gestion de la colère",
+    relations: "Relations avec les autres",
+    motivation: "Motivation",
+  } satisfies Record<MoodScaleKey, string>,
+
+  notes: {
+    received: "Notes reçues",
+    unread: "Nouvelles",
+    read: "Déjà lues",
+    unreadCount: (n: number) => plural(n, "nouvelle note", "nouvelles notes"),
+    sharedOn: (date: string) => `Partagée le ${date}`,
+    markedRead: "Marquée comme lue",
+    empty: "Aucune note reçue pour le moment.",
+  },
+
+  roadmap: {
+    title: "Roadmap",
+    parts: {
+      education: "Éducation",
+      psychologique: "Psychologique",
+      sociale: "Sociale",
+    } satisfies Record<RoadmapPartKey, string>,
+    pending: "Mise à jour en attente",
+    pendingValidation: "Validation attendue",
+    update: "Mettre à jour la roadmap",
+  },
+
+  attendance: {
+    present: "Présent",
+    absent: "Absent",
+    absent_justifie: "Absent justifié",
+  } satisfies Record<AttendanceStatus, string>,
+
+  aids: {
+    a_preparer: "À préparer",
+    depose: "Déposé",
+    accorde: "Accordé",
+    refuse: "Refusé",
+  } satisfies Record<AidStatus, string>,
+
+  notifications: {
+    title: "Notifications",
+    empty: "Rien de nouveau.",
+    markAllRead: "Tout marquer comme lu",
+    unreadAria: (n: number) => (n === 0 ? "Notifications, aucune nouvelle" : `Notifications, ${n} non lues`),
+    kinds: {
+      note_recue: (child: string) => `Nouvelle note partagée sur ${child}`,
+      validation_attendue: (child: string) => `La roadmap de ${child} attend votre validation`,
+      absence: (child: string) => `${child} a été absent plusieurs jours`,
+      roadmap_mise_a_jour: (child: string) => `La roadmap de ${child} a été mise à jour`,
+    } satisfies Record<NotificationKind, (child: string) => string>,
+  },
+
+  auth: {
+    title: "Connexion",
+    subtitle: "Accédez au suivi des enfants de votre centre.",
+    username: "Identifiant",
+    password: "Mot de passe",
+    submit: "Se connecter",
+    submitting: "Connexion…",
+    error: "Identifiant ou mot de passe incorrect.",
+    expired: "Vous avez été déconnecté après 30 minutes d'inactivité. Reconnectez-vous pour continuer.",
+    loggedOut: "Vous êtes déconnecté.",
+    noSignup: "Les comptes sont créés par l'administrateur du centre.",
+    demoAccounts: "Comptes de démonstration",
+    demoHint: "Mot de passe : demo",
+    sharedComputer: "Poste partagé : pensez à vous déconnecter en partant.",
+    forbiddenTitle: "Accès non autorisé",
+    forbiddenText: "Votre rôle ne permet pas d'ouvrir cette page.",
+  },
+
+  shell: {
+    mainNav: "Navigation principale",
+    userMenu: "Menu utilisateur",
+    myProfile: "Mon profil",
+    logout: "Déconnexion",
+    myChildren: "Mes enfants",
+    dashboard: "Tableau de bord",
+    resetDemo: "Réinitialiser la démo",
+    resetDemoDone: "Les données de démonstration ont été réinitialisées.",
+  },
+
+  pages: {
+    children: {
+      title: "Mes enfants",
+      description: "Les enfants que vous suivez.",
+    },
+    dashboard: {
+      title: "Tableau de bord",
+      description: "Vue d'ensemble de votre centre.",
+    },
+    profile: {
+      title: "Mon profil",
+      description: "Vos informations personnelles.",
+      cin: "CIN",
+      role: "Rôle",
+      pole: "Pôle CDIS",
+      phone: "Téléphone",
+      email: "Adresse e-mail",
+      birthDate: "Date de naissance",
+      lockedHint: "Le rôle, le pôle et la CIN sont gérés par l'administrateur.",
+    },
+    placeholder: {
+      title: "Cette page arrive bientôt",
+      text: "Elle sera construite à l'étape suivante du POC.",
+    },
+    notFound: {
+      title: "Page introuvable",
+      text: "L'adresse demandée n'existe pas.",
+      home: "Revenir à l'accueil",
+    },
+  },
+
+  components: {
+    avatarAlt: (name: string) => `Avatar de ${name}`,
+    moodAria: (label: string) => `Humeur : ${label}`,
+    phaseAria: (n: number, label: string) => `Phase ${n} sur 5 : ${label}`,
+    phaseShort: (n: number, label: string) => `${n} · ${label}`,
+  },
+
+  styleguide: {
+    title: "Styleguide",
+    description: "Tokens et composants partagés du POC CDIS.",
+    direction: "Sens de lecture",
+    ltr: "Gauche → droite",
+    rtl: "Droite → gauche",
+    sections: {
+      colors: "Couleurs",
+      base: "Fond, surfaces et texte",
+      primary: "Primaire",
+      pop: "Accents « pop » — avatar et roadmap uniquement",
+      roles: "Rôles — pastilles et repères",
+      moods: "Humeur — 5 niveaux",
+      phases: "Phases du parcours",
+      typography: "Typographie",
+      shape: "Rayons, ombres et focus",
+      controls: "Boutons et champs",
+      badges: "Badges",
+      cards: "PageHeader et SectionCard",
+      stats: "StatCard",
+      empty: "EmptyState",
+      notes: "NoteCard et UnreadDivider",
+      avatar: "ChildAvatar",
+      icons: "Icônes (lucide, trait 1,75)",
+    },
+    tokenNames: {
+      sand: "Fond",
+      surface: "Surface",
+      line: "Bordure",
+      ink: "Texte",
+      inkMuted: "Texte secondaire",
+      teal: "Primaire",
+      tealSoft: "Primaire doux",
+      coral: "Corail",
+      sun: "Soleil",
+      sky: "Ciel",
+    },
+    typeSamples: {
+      display: "Dossier de Yassine",
+      h1: "Titre de page — 24 px",
+      h2: "Titre de section — 18 px",
+      body: "Texte courant — 16 px. L'interface doit être évidente au premier regard, avec peu d'éléments par écran.",
+      small: "Texte secondaire — 14 px",
+      caption: "Légende — 12 px",
+      arabic: "مركز الدفاع والإدماج الاجتماعي — ملف الطفل",
+    },
+    radiusControl: "Contrôle 12 px",
+    radiusCard: "Carte 16 px",
+    shadowCard: "Ombre carte",
+    shadowRaised: "Ombre surélevée",
+    focusHint: "Tabulez jusqu'à ce bouton pour voir le focus",
+    buttons: {
+      primary: "Enregistrer la séance",
+      secondary: "Annuler",
+      outline: "Voir le dossier",
+      ghost: "Plus tard",
+      destructive: "Rejeter",
+      disabled: "Indisponible",
+    },
+    field: {
+      label: "Prénom de l'enfant",
+      placeholder: "Ex. Yassine",
+      hint: "Tel qu'il figure sur l'acte de naissance.",
+    },
+    sampleSection: {
+      title: "Scolarité",
+      description: "Niveau nominal et niveau réel évalué",
+      lastSchool: "Dernier établissement",
+      lastSchoolValue: "Collège Ibn Khaldoun, Tunis",
+      nominal: "Niveau nominal",
+      nominalValue: "8e année de base",
+      actual: "Niveau réel",
+      actualValue: "6e année de base",
+      collapsibleTitle: "Santé",
+      collapsibleBody: "Groupe sanguin O+, aucune allergie connue, carnet de vaccination à jour.",
+    },
+    stats: {
+      followed: "Enfants suivis",
+      followedHint: "+2 ce mois-ci",
+      insertion: "Taux d'insertion",
+      insertionHint: "Sorties vers école, formation ou emploi",
+      returned: "Revenus au centre",
+      returnedHint: "Sur 12 mois",
+      pending: "Roadmaps en attente",
+      pendingHint: "Depuis plus de 7 jours : 1",
+    },
+    emptySample: {
+      title: "Aucune note reçue",
+      text: "Quand un collègue partagera une note avec vous, elle apparaîtra ici.",
+      action: "Retour au dossier",
+    },
+    noteSamples: [
+      {
+        author: "Leila Haddad",
+        role: "psychologue" as const,
+        text: "Yassine a mal dormi cette semaine, éviter les activités le matin.",
+        session: "Consultation du 10 nov. 2026",
+      },
+      {
+        author: "Sami Ayari",
+        role: "social" as const,
+        text: "La famille a obtenu l'aide aux familles nécessiteuses. Le père reprend un travail à mi-temps.",
+        session: "Visite familiale du 6 nov. 2026",
+      },
+    ],
+    avatarSizes: "Tailles",
+    avatarMoods: "Halo selon l'humeur",
+    pageHeaderSample: {
+      title: "Dossier de Yassine Ben Salah",
+      description: "15 ans · entré le 3 mars 2026",
+      action: "Nouvelle observation",
+    },
+  },
+}
+
+export type Dictionary = typeof fr
