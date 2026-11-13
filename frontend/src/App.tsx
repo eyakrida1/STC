@@ -43,7 +43,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "enfants/:childId/:tab?",
+        path: "enfants/:childId/:tab?/:section?",
         element: (
           <RequireAuth roles={ROUTE_ROLES.childFile}>
             <ChildPage />

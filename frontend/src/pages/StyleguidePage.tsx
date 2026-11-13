@@ -25,6 +25,7 @@ import {
   PhaseTrack,
   RoadmapRoad,
   RoleBadge,
+  SegmentedControl,
   SelectField,
   TagsField,
   TextField,
@@ -501,6 +502,19 @@ export function StyleguidePage() {
               flags={s.roadFlags.map((f, i) => ({ id: `sg-${i}`, part: f.part, label: f.label, date: ROAD_SAMPLE.dates[i], reached: i < 2 }))}
             />
           </div>
+        </Block>
+
+        {/* ───────── SegmentedControl */}
+        <Block title={sec.segmented} id="sg-segmented">
+          <SegmentedControl
+            label={sec.segmented}
+            active="activites"
+            items={[
+              { key: "seances", label: t.sessions.space.psychologue.title, to: "/styleguide", icon: NotebookPen },
+              { key: "humeur", label: t.followup.sections.humeur, to: "/styleguide", icon: Sparkles },
+              { key: "activites", label: t.followup.sections.activites, to: "/styleguide", icon: CalendarCheck, hint: t.followup.sections.readOnly },
+            ]}
+          />
         </Block>
 
         {/* ───────── Champs de formulaire */}

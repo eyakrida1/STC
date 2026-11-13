@@ -113,7 +113,8 @@ espacements multiples de 4, largeur max du contenu 1200 px (`max-w-page`), icôn
 | `NoteCard` | note partagée reçue : avatar + `RoleBadge` de l’auteur, « partagée le 12/11 à 14 h », séance d’origine, texte replié au-delà de 4 lignes ; `unread` (liseré couleur du rôle) + `onOpen` (marque lue) ; `expanded`/`onExpandedChange` pour garder l’état quand la carte change de liste |
 | `UnreadDivider` | trait « Nouvelles » (`tone="new"`) / « Déjà lues » |
 | `ChildAvatar` | petit avatar enfant (cartes, listes) : image ronde + halo couleur d’humeur ; `size` sm 40 / md 64 / lg 96 / xl 160 px, `sex`. Pour l'en-tête du dossier, utiliser `AvatarLive` |
-| `UserAvatar` | photo d'un intervenant (sobre) |
+| `UserAvatar` | photo d’un intervenant (sobre) : `photoUrl` si choisie, sinon avatar de démonstration ; tailles sm/md/lg/xl |
+| `SegmentedControl` | sélecteur secondaire (sous-sections) : liens avec `aria-current`, `hint` (ex. « lecture seule »), défile sur mobile |
 | `FullPageLoader` | chargement plein écran |
 
 `/styleguide` (public) montre tous les tokens et composants, avec bascule LTR/RTL. **Tout nouveau composant partagé
@@ -165,9 +166,9 @@ doit y être ajouté.**
 | `/styleguide` | public | fait |
 | `/` | connecté | redirige selon le rôle |
 | `/enfants` | intervenants | fait — Mes enfants (`pages/children/`) |
-| `/enfants/:childId/:tab?` | intervenants assignés + directeur (lecture) | fait — dossier enfant (`pages/child/`) ; les 4 onglets sont remplis |
+| `/enfants/:childId/:tab?/:section?` | intervenants assignés + directeur (lecture) | fait — dossier enfant (`pages/child/`) ; les 4 onglets sont remplis |
 | `/tableau-de-bord` | directeur | provisoire (page vide) |
-| `/profil` | tous | version simple (lecture) |
+| `/profil` | tous | fait — photo (aperçu), infos modifiables, CIN / rôle / pôle verrouillés, mot de passe (≥ 10 car.) |
 
 ### Mes enfants (`pages/children/`)
 
@@ -222,3 +223,22 @@ doit y être ajouté.**
   Modifier (décocher des changements, `applyChoices`) / Rejeter, justification obligatoire pour Modifier et Rejeter.
   Les autres : commentaires. Après validation : confettis (~1 s, `Celebration`), toast, fanions mis à jour.
 - `HistorySheet` : versions (initiale, validée, modifiée + justification) et rejets.
+
+### Sous-sections de « Mon espace » (`pages/child/space/`, URL `/enfants/:id/espace/:section`)
+
+| Rôle | Sous-sections |
+|---|---|
+| éducateur | Observations · Activités · Présence |
+| psychologue | Consultations · Humeur · Activités (lecture seule) · Présence (lecture seule) |
+| intervenant social | Visites · Aides de l'État · Présence (lecture seule) |
+
+Définies dans `sections.ts` (`SECTIONS_BY_ROLE`) ; une sous-section non autorisée redirige vers les séances.
+- Activités (`ActivitiesWeek`) : semaine lundi → samedi, matin / après-midi, navigation par semaine ; activités
+  « chaque semaine » (`weekStart: null`) ou ponctuelles ; l'éducateur ajoute, modifie, déplace (glisser-déposer ou
+  formulaire) ; le psy voit « Planning tenu par … ». Couleurs des pastilles : tons doux des phases (pas de pop).
+- Présence (`AttendanceMonth`) : calendrier mensuel, présent vert / absent corail / absent justifié ambre
+  (tokens `att-*`), motif obligatoire si justifié, pas de saisie future ni le dimanche ; taux du mois + absences.
+- Humeur (`MoodChart`, psy) : Recharts, 6 échelles sur 6 mois, palette catégorielle validée par le skill dataviz
+  (ordre fixe par échelle), légende = filtres cliquables, point → consultation, vue tableau obligatoire (contraste).
+- Aides (`AidsPanel`, social) : inscriptions avec statut, dates (dépôt obligatoire si déposé, décision si accordé /
+  refusé), pièces manquantes ; la mise à jour remonte à `ChildPage` → carte « Situation économique ».

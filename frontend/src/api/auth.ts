@@ -35,6 +35,7 @@ export function updateMyProfile(update: ProfileUpdate): Promise<User> {
     me.birthDate = update.birthDate
     me.phone = update.phone.trim()
     me.email = update.email.trim()
+    me.photoUrl = update.photoUrl
     persist()
     return me
   })
@@ -43,8 +44,8 @@ export function updateMyProfile(update: ProfileUpdate): Promise<User> {
 export function changeMyPassword(oldPassword: string, newPassword: string): Promise<void> {
   return simulate(() => {
     const me = requireUser()
-    if (db().credentials[me.username] !== oldPassword) throw new ApiError("invalid")
-    if (newPassword.length < 4) throw new ApiError("invalid")
+    if (db().credentials[me.username] !== oldPassword) throw new ApiError("invalid", "wrong_password")
+    if (newPassword.length < 10) throw new ApiError("invalid", "too_short") // 10 caractères minimum
     db().credentials[me.username] = newPassword
     persist()
   })

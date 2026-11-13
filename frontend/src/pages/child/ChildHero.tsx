@@ -15,6 +15,7 @@ export interface TeamMember {
   lastName: string
   role: ProfessionalRole
   avatarSeed: string
+  photoUrl?: string | null
 }
 
 const pill = "inline-flex h-7 items-center gap-1.5 rounded-full bg-muted px-2.5 text-sm font-medium text-ink"
@@ -85,7 +86,7 @@ export function ChildHero({
             <ul className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-x-5">
               {team.map((m) => (
                 <li key={m.id} className="flex items-center gap-2">
-                  <UserAvatar seed={m.avatarSeed} name="" size="sm" />
+                  <UserAvatar seed={m.avatarSeed} photoUrl={m.photoUrl} name="" size="sm" />
                   <span className="text-sm font-medium text-ink">
                     {m.firstName} {m.lastName}
                   </span>

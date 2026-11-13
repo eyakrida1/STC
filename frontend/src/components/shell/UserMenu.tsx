@@ -27,7 +27,7 @@ export function UserMenu() {
         aria-label={t.shell.userMenu}
         className="flex items-center gap-2 rounded-full py-1 ps-1 pe-2 hover:bg-muted sm:pe-3"
       >
-        <UserAvatar seed={user.avatarSeed} name="" size="md" />
+        <UserAvatar seed={user.avatarSeed} photoUrl={user.photoUrl} name="" size="md" />
         <span className="hidden flex-col items-start leading-tight sm:flex">
           <span className="text-sm font-medium text-ink">{name}</span>
           <RoleBadge role={user.role} plain className="h-auto text-xs font-normal text-ink-muted" />
@@ -36,7 +36,7 @@ export function UserMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 p-2">
         <div className="flex items-center gap-3 px-2 py-2">
-          <UserAvatar seed={user.avatarSeed} name="" size="md" />
+          <UserAvatar seed={user.avatarSeed} photoUrl={user.photoUrl} name="" size="md" />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-ink">{name}</p>
             <RoleBadge role={user.role} className="mt-1" />

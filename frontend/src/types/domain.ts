@@ -29,9 +29,10 @@ export interface User {
   cin: string // non modifiable par l'intervenant
   poleId: string
   avatarSeed: string // photo de démonstration (DiceBear, généré localement)
+  photoUrl?: string | null // photo choisie par l'utilisateur (image réduite, data URL dans la démo)
 }
 
-export type ProfileUpdate = Pick<User, "firstName" | "lastName" | "birthDate" | "phone" | "email">
+export type ProfileUpdate = Pick<User, "firstName" | "lastName" | "birthDate" | "phone" | "email"> & { photoUrl: string | null }
 
 // ───────────────────────────── Échelles
 export type MoodLevel = 1 | 2 | 3 | 4 | 5
@@ -426,6 +427,8 @@ export interface Activity {
   end: string
   title: string
   objective: string
+  /** null = chaque semaine ; sinon lundi de la semaine concernée (activité ponctuelle) */
+  weekStart: ISODate | null
 }
 
 export interface AidProgram {

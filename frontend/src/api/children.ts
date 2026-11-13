@@ -110,12 +110,12 @@ export function setPhase(childId: string, phase: PhaseId, comment: string): Prom
 }
 
 /** Équipe qui suit l'enfant (noms, rôles, photos) — pour l'en-tête du dossier. */
-export function getChildTeam(childId: string): Promise<{ id: string; firstName: string; lastName: string; role: ProfessionalRole; avatarSeed: string }[]> {
+export function getChildTeam(childId: string): Promise<{ id: string; firstName: string; lastName: string; role: ProfessionalRole; avatarSeed: string; photoUrl: string | null }[]> {
   return simulate(() => {
     const child = requireChild(requireUser(), childId)
     return PRO_ROLES.flatMap((role) => {
       const u = db().users.find((x) => x.id === child.assigned[role])
-      return u ? [{ id: u.id, firstName: u.firstName, lastName: u.lastName, role, avatarSeed: u.avatarSeed }] : []
+      return u ? [{ id: u.id, firstName: u.firstName, lastName: u.lastName, role, avatarSeed: u.avatarSeed, photoUrl: u.photoUrl ?? null }] : []
     })
   })
 }

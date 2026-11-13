@@ -14,7 +14,8 @@ import { resolveTab } from "./tabs"
 import { DossierTab } from "./dossier/DossierTab"
 import { NotesTab } from "./notes/NotesTab"
 import { RoadmapTab } from "./roadmap/RoadmapTab"
-import { SpaceTab } from "./space/SpaceTab"
+import { resolveSection } from "./space/sections"
+import { SpacePanel } from "./space/SpacePanel"
 
 export interface ChildPageData {
   child: Child
@@ -29,7 +30,7 @@ export function ChildPage() {
   const t = useT()
   const p = t.pages.child
   const user = useCurrentUser()
-  const { childId = "", tab } = useParams()
+  const { childId = "", tab, section: sectionSlug } = useParams()
   const [data, setData] = useState<ChildPageData | null>(null)
   const [error, setError] = useState<"not_found" | "failed" | null>(null)
 
@@ -91,6 +92,11 @@ export function ChildPage() {
   const activeTab = resolveTab(tab, user.role)
   // onglet inconnu ou non autorisé pour ce rôle : on revient proprement sur « Dossier »
   if (tab !== undefined && tab !== activeTab) return <Navigate to={`/enfants/${childId}`} replace />
+  // sous-section de « Mon espace » inconnue ou non autorisée pour ce rôle : retour à la liste des séances
+  const section = isProfessional(user.role) ? resolveSection(user.role, sectionSlug) : "seances"
+  if (sectionSlug !== undefined && (activeTab !== "espace" || section !== sectionSlug)) {
+    return <Navigate to={activeTab === "espace" ? `/enfants/${childId}/espace` : `/enfants/${childId}/${activeTab}`} replace />
+  }
 
   if (!data) return <FullPageLoader />
 
@@ -106,7 +112,15 @@ export function ChildPage() {
         {activeTab === "dossier" ? (
           <DossierTab data={data} onChildChange={setChild} />
         ) : activeTab === "espace" ? (
-          <SpaceTab child={data.child} team={data.team} onChildChange={setChild} />
+          <SpacePanel
+            section={section}
+            child={data.child}
+            team={data.team}
+            aids={data.aids}
+            programs={data.programs}
+            onChildChange={setChild}
+            onAidsChange={(aids) => setData((d) => (d ? { ...d, aids } : d))}
+          />
         ) : activeTab === "notes" ? (
           <NotesTab childId={data.child.id} onUnreadChange={(n) => setData((d) => (d ? { ...d, unreadNotes: n } : d))} />
         ) : (

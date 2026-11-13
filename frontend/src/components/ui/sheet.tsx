@@ -62,6 +62,7 @@ function SheetContent({
         {showCloseButton && (
           <SheetPrimitive.Close
             data-slot="sheet-close"
+            aria-label={t.common.close}
             render={
               <Button
                 variant="ghost"

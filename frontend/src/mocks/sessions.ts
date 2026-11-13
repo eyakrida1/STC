@@ -99,6 +99,38 @@ export function buildSessions(): Session[] {
       ai: { text: "Famille mobilisée ; revenus instables, dossier d'aide déposé." },
     },
 
+    // Historique de consultations (6 mois) pour la courbe des échelles
+    ...[170, 135, 100, 70].map(
+      (d, i): Spec => ({
+        id: `se-yas-h${i}`,
+        childId: "c-yassine",
+        role: "psychologue",
+        date: daysAgo(d),
+        details: {
+          kind: "consultation",
+          durationMin: 45,
+          type: i === 0 ? "initiale" : "suivi",
+          scales: [scales(2, 5, 1, 2, 2, 2), scales(2, 4, 2, 2, 3, 2), scales(3, 4, 2, 3, 3, 3), scales(2, 4, 2, 3, 3, 3)][i],
+        },
+        privateNote: ["Premier contact, très méfiant.", "Commence à parler de l'atelier.", "Bonne séance, plus détendu.", "Semaine difficile à la maison."][i],
+      }),
+    ),
+    ...[160, 120, 80, 45].map(
+      (d, i): Spec => ({
+        id: `se-nou-h${i}`,
+        childId: "c-nour",
+        role: "psychologue",
+        date: daysAgo(d),
+        details: {
+          kind: "consultation",
+          durationMin: 45,
+          type: "suivi",
+          scales: [scales(3, 3, 2, 3, 3, 3), scales(3, 3, 3, 3, 4, 4), scales(4, 2, 3, 4, 4, 4), scales(4, 2, 4, 4, 4, 5)][i],
+        },
+        privateNote: ["Doute de ses capacités.", "Le projet pâtisserie la motive.", "Plus sereine en groupe.", "Prête pour le stage."][i],
+      }),
+    ),
+
     // ── Amira
     {
       id: "se-ami-1",

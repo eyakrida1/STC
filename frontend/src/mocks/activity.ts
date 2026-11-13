@@ -61,6 +61,7 @@ export function buildActivities(): Activity[] {
     end,
     title,
     objective,
+    weekStart: null,
   })
   return [
     a("a-yas-1", "c-yassine", 2, "10:00", "12:00", "Atelier électricité", "Travailler la patience"),

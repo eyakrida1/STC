@@ -63,6 +63,17 @@
   --cdis-zone-ai-soft: #f3eeff;
   --cdis-zone-ai-ink: #5b21b6;
 
+  /* Présence : présent vert, absent corail, absent justifié ambre (repère / fond doux / texte AA) */
+  --cdis-att-present: #16a34a;
+  --cdis-att-present-soft: #dcfce7;
+  --cdis-att-present-ink: #166534;
+  --cdis-att-absent: #f97360;
+  --cdis-att-absent-soft: #ffe4de;
+  --cdis-att-absent-ink: #9a3412;
+  --cdis-att-justified: #d97706;
+  --cdis-att-justified-soft: #fef3c7;
+  --cdis-att-justified-ink: #92400e;
+
   /* Forme */
   --cdis-radius: 12px;
   --cdis-radius-card: 16px;

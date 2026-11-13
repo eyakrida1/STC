@@ -66,7 +66,7 @@ export function TextField({
 }: Common & {
   value: string
   onChange: (v: string) => void
-  type?: "text" | "tel" | "email" | "date" | "number"
+  type?: "text" | "tel" | "email" | "date" | "number" | "time" | "password"
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]
   autoComplete?: string
   placeholder?: string

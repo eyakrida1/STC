@@ -64,6 +64,16 @@
   --color-zone-ai-soft: var(--cdis-zone-ai-soft);
   --color-zone-ai-ink: var(--cdis-zone-ai-ink);
 
+  --color-att-present: var(--cdis-att-present);
+  --color-att-present-soft: var(--cdis-att-present-soft);
+  --color-att-present-ink: var(--cdis-att-present-ink);
+  --color-att-absent: var(--cdis-att-absent);
+  --color-att-absent-soft: var(--cdis-att-absent-soft);
+  --color-att-absent-ink: var(--cdis-att-absent-ink);
+  --color-att-justified: var(--cdis-att-justified);
+  --color-att-justified-soft: var(--cdis-att-justified-soft);
+  --color-att-justified-ink: var(--cdis-att-justified-ink);
+
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: var(--cdis-radius);
