@@ -2,7 +2,7 @@
  * Règles d'accès par rôle — source unique côté front.
  * La couche api/ les applique aussi (comme le fera le backend Django) : le front ne fait qu'adapter l'affichage.
  */
-import type { ChildBlock, ProfessionalRole, Role, RoadmapPartKey } from "@/types"
+import type { ChildBlock, PhaseId, ProfessionalRole, Role, RoadmapPartKey } from "@/types"
 
 export const ALL_ROLES: Role[] = ["educateur", "psychologue", "social", "directeur"]
 export const PRO_ROLES: ProfessionalRole[] = ["educateur", "psychologue", "social"]
@@ -49,6 +49,14 @@ export function canEditBlock(role: Role, block: ChildBlock): boolean {
 
 export function canEditPhase(role: Role): boolean {
   return isProfessional(role)
+}
+
+/** Passages de phase autorisés : on avance d'une phase (1→2→3→4→5), ou 4→3 pour réajuster. */
+export function allowedPhaseTargets(current: PhaseId): PhaseId[] {
+  const targets: PhaseId[] = []
+  if (current < 5) targets.push((current + 1) as PhaseId)
+  if (current === 4) targets.push(3)
+  return targets
 }
 
 /** Responsable de validation de chaque partie de la roadmap. */

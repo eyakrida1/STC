@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import {
   AlertTriangle,
   Bell,
@@ -14,13 +14,19 @@ import {
   HeartPulse,
 } from "lucide-react"
 import {
+  AvatarLive,
+  CheckboxField,
   ChildAvatar,
   EmptyState,
   MoodBadge,
   NoteCard,
   PageHeader,
   PhaseBadge,
+  PhaseTrack,
   RoleBadge,
+  SelectField,
+  TagsField,
+  TextField,
   SectionCard,
   StatCard,
   UnreadDivider,
@@ -31,6 +37,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useI18n } from "@/i18n/context"
+import { childAvatarUri } from "@/lib/avatar"
+import { buildBubbles } from "@/lib/bubbles"
 import { MOOD_LEVELS, PHASES, type MoodLevel, type Role } from "@/types"
 
 const ROLES: Role[] = ["educateur", "psychologue", "social", "directeur"]
@@ -93,6 +101,30 @@ const MOOD_SAMPLES = [
   { seed: "nour-mejri", sex: "F" },
   { seed: "skander-hammami", sex: "M" },
 ] as const
+
+const SAMPLE_INTERESTS = {
+  hobbies: ["Pâtisserie", "Réseaux sociaux", "Danse"],
+  interests: ["Esthétique", "Animaux"],
+  skillsToDevelop: ["Calcul", "Ponctualité", "Confiance en soi"],
+  wishes: "",
+}
+
+function FormSample() {
+  const { t } = useI18n()
+  const f = t.styleguide.formSample
+  const [name, setName] = useState("")
+  const [grade, setGrade] = useState<string | null>(null)
+  const [tags, setTags] = useState<string[]>(["Football"])
+  const [ok, setOk] = useState(true)
+  return (
+    <>
+      <TextField label={f.text} value={name} onChange={setName} error={name ? null : t.pages.child.cards.required} />
+      <SelectField<string> label={f.select} value={grade} onChange={setGrade} options={f.options.map((o) => ({ value: o, label: o }))} />
+      <TagsField label={f.tags} values={tags} onChange={setTags} />
+      <CheckboxField label={f.checkbox} checked={ok} onChange={setOk} />
+    </>
+  )
+}
 
 const grid = "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"
 
@@ -273,6 +305,14 @@ export function StyleguidePage() {
                 <PhaseBadge key={p} phase={p} variant="long" size="md" />
               ))}
             </div>
+            <div className="flex flex-wrap items-center gap-4">
+              {PHASES.map((p) => (
+                <PhaseTrack key={p} phase={p} />
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <MoodBadge level={4} size="md" withPrefix detail={s.moodDetail} />
+            </div>
             <div className="flex flex-wrap items-center gap-2">
               {MOOD_LEVELS.map((m) => (
                 <MoodBadge key={m} level={m} />
@@ -333,8 +373,8 @@ export function StyleguidePage() {
               title={s.sampleSection.collapsibleTitle}
               icon={HeartPulse}
               collapsible
+              sensitive
               editors={["social", "psychologue"]}
-              notice={t.auditNotice}
             >
               <p className="text-base text-ink">{s.sampleSection.collapsibleBody}</p>
             </SectionCard>
@@ -420,6 +460,31 @@ export function StyleguidePage() {
                 ))}
               </div>
             </Sub>
+          </div>
+        </Block>
+
+        {/* ───────── AvatarLive */}
+        <Block title={sec.avatarLive} id="sg-avatar-live">
+          <p className="max-w-prose text-sm text-ink-muted">{s.avatarLiveHint}</p>
+          <div className="grid gap-6 xl:grid-cols-2">
+            {([2, 3, 5] as MoodLevel[]).map((m) => (
+              <div key={m} className="flex flex-col items-center rounded-card border border-line bg-surface p-4 shadow-card sm:p-6">
+                <AvatarLive
+                  src={childAvatarUri("nour-mejri", "F")}
+                  name="Nour"
+                  mood={m}
+                  bubbles={buildBubbles(SAMPLE_INTERESTS)}
+                  footer={<MoodBadge level={m} size="md" withPrefix detail={s.moodDetail} />}
+                />
+              </div>
+            ))}
+          </div>
+        </Block>
+
+        {/* ───────── Champs de formulaire */}
+        <Block title={sec.form} id="sg-form">
+          <div className="grid max-w-2xl gap-4 rounded-card border border-line bg-surface p-6 shadow-card">
+            <FormSample />
           </div>
         </Block>
 

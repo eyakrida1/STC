@@ -51,9 +51,8 @@ export function buildChildren(): Child[] {
       economic: { monthlyIncomeTnd: 450, housing: "locataire", householdSize: 5 },
       schooling: {
         lastSchool: "Collège Ibn Khaldoun, Tunis",
-        nominalLevel: "8e année de base",
-        actualLevel: "6e année de base",
-        gapYears: 2,
+        nominalGrade: 8,
+        actualGrade: 6,
         subjects: [
           { subject: "Arabe", nominal: "8e", actual: "6e" },
           { subject: "Français", nominal: "8e", actual: "5e" },
@@ -131,9 +130,8 @@ export function buildChildren(): Child[] {
       economic: { monthlyIncomeTnd: 380, housing: "heberge", householdSize: 3 },
       schooling: {
         lastSchool: "École préparatoire Ennasr",
-        nominalLevel: "7e année de base",
-        actualLevel: "À évaluer",
-        gapYears: 0,
+        nominalGrade: 7,
+        actualGrade: null,
         subjects: [],
       },
       health: {
@@ -201,9 +199,8 @@ export function buildChildren(): Child[] {
       economic: { monthlyIncomeTnd: 700, housing: "locataire", householdSize: 5 },
       schooling: {
         lastSchool: "Collège Mourouj 4",
-        nominalLevel: "9e année de base",
-        actualLevel: "7e année de base",
-        gapYears: 2,
+        nominalGrade: 9,
+        actualGrade: 7,
         subjects: [
           { subject: "Arabe", nominal: "9e", actual: "8e" },
           { subject: "Français", nominal: "9e", actual: "6e" },
@@ -286,9 +283,8 @@ export function buildChildren(): Child[] {
       economic: { monthlyIncomeTnd: 520, housing: "locataire", householdSize: 4 },
       schooling: {
         lastSchool: "Lycée Douar Hicher",
-        nominalLevel: "1re année secondaire",
-        actualLevel: "9e année de base",
-        gapYears: 1,
+        nominalGrade: 10,
+        actualGrade: 9,
         subjects: [
           { subject: "Arabe", nominal: "1re sec.", actual: "1re sec." },
           { subject: "Français", nominal: "1re sec.", actual: "9e" },
@@ -360,9 +356,8 @@ export function buildChildren(): Child[] {
       economic: { monthlyIncomeTnd: 900, housing: "locataire", householdSize: 3 },
       schooling: {
         lastSchool: "Collège technique Sidi Hassine",
-        nominalLevel: "9e année de base",
-        actualLevel: "9e année de base",
-        gapYears: 0,
+        nominalGrade: 9,
+        actualGrade: 9,
         subjects: [],
       },
       health: {
@@ -437,9 +432,8 @@ export function buildChildren(): Child[] {
       economic: { monthlyIncomeTnd: 300, housing: "precaire", householdSize: 5 },
       schooling: {
         lastSchool: "École primaire El Kabaria",
-        nominalLevel: "7e année de base",
-        actualLevel: "5e année de base",
-        gapYears: 2,
+        nominalGrade: 7,
+        actualGrade: 5,
         subjects: [
           { subject: "Arabe", nominal: "7e", actual: "5e" },
           { subject: "Français", nominal: "7e", actual: "4e" },

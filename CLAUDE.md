@@ -99,15 +99,18 @@ espacements multiples de 4, largeur max du contenu 1200 px (`max-w-page`), icôn
 | Composant | Usage |
 |---|---|
 | `PageHeader` | h1 + description + actions ; `back` (lien retour), `leading` (avatar) |
-| `SectionCard` | bloc d'information ; `editors` (« Modifié par » + rôles), `collapsible` + `onOpen` (audit Santé / Judiciaire), `notice` |
+| `SectionCard` | bloc d'information ; `editors` (« Tenu par : … » sous le titre), `actions` (ex. « Modifier », à ne passer que si l'utilisateur a le droit ; masquées carte repliée), `collapsible` + `onOpen` (audit), `sensitive` (cadenas + « l'ouverture est enregistrée »), `notice` |
 | `RoleBadge` | pastille de rôle (point coloré + libellé) ; `plain` sans fond |
 | `PhaseBadge` | « 3 · Accompagnement » ; `variant="long"` libellé complet |
-| `MoodBadge` | humeur 1–5 ; `showLabel={false}` = point seul |
+| `PhaseTrack` | mini-frise des 5 phases (passées pleines, actuelle en surbrillance, à venir en creux) |
+| `MoodBadge` | humeur 1–5 ; `showLabel={false}` = point seul ; `withPrefix` (« Humeur : bien ») + `detail` (« partagée par le psy le 12/11 ») |
+| `AvatarLive` | **avatar vivant** de l'en-tête du dossier (zone pop) : portrait 160 px (`src` = `childPortraitSrc(identity)`), halo animé couleur d'humeur (respiration lente 1-2, immobile 3, pulsation + étincelles 4-5), bulles pop en orbite (`buildBubbles(interests)`, 8 max, icône + mot, info-bulle) qui n'empiètent jamais sur le portrait ; sous 640 px les bulles passent en ligne sous le portrait ; `footer` = MoodBadge. Tout est coupé si `prefers-reduced-motion` |
+| `TextField`, `TextareaField`, `SelectField`, `CheckboxField`, `TagsField`, `FieldGroup`, `Field` | champs de formulaire (`form.tsx`) : libellé visible, aide, erreur reliée par `aria-describedby`, hauteur 44 px |
 | `StatCard` | chiffre clé ; `tone="attention"` |
 | `EmptyState` | icône + phrase + action |
 | `NoteCard` | note partagée reçue ; `unread` + `onOpen` (marque lue) |
 | `UnreadDivider` | trait « Nouvelles » (`tone="new"`) / « Déjà lues » |
-| `ChildAvatar` | avatar enfant (zone pop) : image ronde + halo couleur d’humeur ; `size` sm 40 / md 64 / lg 96 / xl 160 px, `sex`. Version simple, à enrichir (expression selon l'humeur, accessoires, bulles d'intérêts) |
+| `ChildAvatar` | petit avatar enfant (cartes, listes) : image ronde + halo couleur d’humeur ; `size` sm 40 / md 64 / lg 96 / xl 160 px, `sex`. Pour l'en-tête du dossier, utiliser `AvatarLive` |
 | `UserAvatar` | photo d'un intervenant (sobre) |
 | `FullPageLoader` | chargement plein écran |
 
@@ -160,7 +163,7 @@ doit y être ajouté.**
 | `/styleguide` | public | fait |
 | `/` | connecté | redirige selon le rôle |
 | `/enfants` | intervenants | fait — Mes enfants (`pages/children/`) |
-| `/enfants/:childId/*` | intervenants assignés + directeur (lecture) | provisoire |
+| `/enfants/:childId/:tab?` | intervenants assignés + directeur (lecture) | fait — dossier enfant (`pages/child/`) ; onglet Dossier rempli, les autres « bientôt » |
 | `/tableau-de-bord` | directeur | provisoire (page vide) |
 | `/profil` | tous | version simple (lecture) |
 
@@ -171,3 +174,22 @@ doit y être ajouté.**
 - Filtres dans l'URL (`?q=`, `?phase=`, `?tri=priorite|nom|activite`) ; tri par défaut « Alertes d'abord ».
 - Recherche insensible à la casse et aux accents ; squelettes au chargement ; `EmptyState` + « Effacer les filtres ».
 - `ChildCard` est spécifique à la page (pas dans `components/cdis/`) ; toute la carte est un lien vers le dossier.
+
+### Dossier enfant (`pages/child/`) — écran central du POC
+
+- Données chargées par `ChildPage` : `getChild`, `getChildTeam`, `listAidApplications`, `listAidPrograms`,
+  `listReceivedNotes` (intervenants seulement, pour le compteur). Toute modification renvoie l'enfant à jour :
+  on remplace l'état (`onChildChange`) → la carte **et** les bulles de l'avatar se mettent à jour sans rechargement.
+- En-tête (`ChildHero`) : `AvatarLive` à gauche ; à droite nom, âge, code, `PhaseBadge` + `PhaseTrack`, statut,
+  date d'entrée, « Revenu au centre », intervenants. « Changer de phase » (`PhaseChangeDialog`) pour les 3 intervenants :
+  passages autorisés = `allowedPhaseTargets()` (1→2→3→4→5 et 4→3), commentaire obligatoire, revérifié par `api.setPhase`.
+  Le directeur voit « Lecture seule ».
+- Onglets = liens (`ChildTabs`, `aria-current`), slug dans l'URL : `""` Dossier, `espace` (Observations /
+  Consultations / Visites selon le rôle), `notes` (compteur non lues), `roadmap`. Directeur : Dossier et Roadmap
+  seulement ; un slug non autorisé redirige vers Dossier.
+- Onglet Dossier (`dossier/`) : 9 cartes dans l'ordre naturel (Identité, Parcours, Famille, Économie, Scolarité,
+  Intérêts, Santé, Judiciaire, Consentement), 2 colonnes ≥ lg. `BlockCard` = `SectionCard` + bouton « Modifier »
+  (seulement si `canEditBlock`) + `EditSheet` (panneau latéral : brouillon, validation `lib/validation.ts`,
+  Annuler / Enregistrer, toast). Santé et Judiciaire : repliées, `sensitive`, `api.logBlockOpened` à chaque ouverture.
+- Scolarité : niveaux numériques `SchoolGrade` 1 → 13 (1re année de base → 4e secondaire), libellés dans
+  `fr.ts > pages.child.grades` ; l'écart est calculé (jamais stocké).

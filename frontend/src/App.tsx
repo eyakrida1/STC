@@ -9,16 +9,12 @@ import { NotFoundPage } from "@/pages/NotFoundPage"
 import { PlaceholderPage } from "@/pages/PlaceholderPage"
 import { ProfilePage } from "@/pages/ProfilePage"
 import { ChildrenPage } from "@/pages/children/ChildrenPage"
+import { ChildPage } from "@/pages/child/ChildPage"
 import { StyleguidePage } from "@/pages/StyleguidePage"
 
 function HomeRedirect() {
   const { user } = useAuth()
   return <Navigate to={user ? homePathFor(user.role) : "/connexion"} replace />
-}
-
-function ChildrenPlaceholder() {
-  const t = useT()
-  return <PlaceholderPage title={t.pages.children.title} description={t.pages.children.description} />
 }
 
 function DashboardPlaceholder() {
@@ -47,10 +43,10 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "enfants/:childId/*",
+        path: "enfants/:childId/:tab?",
         element: (
           <RequireAuth roles={ROUTE_ROLES.childFile}>
-            <ChildrenPlaceholder />
+            <ChildPage />
           </RequireAuth>
         ),
       },

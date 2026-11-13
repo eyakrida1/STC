@@ -1,6 +1,6 @@
-import { AUDITED_BLOCKS, canEditBlock, canEditPhase, isProfessional } from "@/lib/access"
+import { allowedPhaseTargets, AUDITED_BLOCKS, canEditBlock, canEditPhase, isProfessional, PRO_ROLES } from "@/lib/access"
 import { addDays, ageFrom, localISODate } from "@/lib/format"
-import type { Child, ChildBlock, ChildSummary, PhaseId, User } from "@/types"
+import type { Child, ChildBlock, ChildSummary, PhaseId, ProfessionalRole, User } from "@/types"
 import { ApiError, canSeeChild, db, newId, nowISO, persist, requireChild, requireUser, simulate } from "./client"
 
 function summarize(child: Child, me: User): ChildSummary {
@@ -94,17 +94,28 @@ export function updateChildBlock<K extends Exclude<ChildBlock, "mood">>(
 }
 
 /** Changement de phase du parcours : toute l'équipe d'intervenants. */
-export function setPhase(childId: string, phase: PhaseId): Promise<Child> {
+export function setPhase(childId: string, phase: PhaseId, comment: string): Promise<Child> {
   return simulate(() => {
     const me = requireUser()
     const child = requireChild(me, childId)
     if (!canEditPhase(me.role)) throw new ApiError("forbidden")
-    if (child.journey.phase !== phase) {
-      const stayId = child.journey.stays.at(-1)!.id
-      child.journey.phase = phase
-      child.journey.phaseHistory.push({ phase, enteredAt: localISODate(), stayId })
-      persist()
-    }
+    if (!allowedPhaseTargets(child.journey.phase).includes(phase)) throw new ApiError("invalid")
+    if (!comment.trim()) throw new ApiError("invalid")
+    const stayId = child.journey.stays.at(-1)!.id
+    child.journey.phase = phase
+    child.journey.phaseHistory.push({ phase, enteredAt: localISODate(), stayId, by: me.id, comment: comment.trim() })
+    persist()
     return child
+  })
+}
+
+/** Équipe qui suit l'enfant (noms, rôles, photos) — pour l'en-tête du dossier. */
+export function getChildTeam(childId: string): Promise<{ id: string; firstName: string; lastName: string; role: ProfessionalRole; avatarSeed: string }[]> {
+  return simulate(() => {
+    const child = requireChild(requireUser(), childId)
+    return PRO_ROLES.flatMap((role) => {
+      const u = db().users.find((x) => x.id === child.assigned[role])
+      return u ? [{ id: u.id, firstName: u.firstName, lastName: u.lastName, role, avatarSeed: u.avatarSeed }] : []
+    })
   })
 }

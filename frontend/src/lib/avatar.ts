@@ -28,6 +28,11 @@ export function childAvatarUri(seed: string, sex?: "M" | "F"): string {
   return uri
 }
 
+/** Portrait de l'enfant : `avatarUrl` (portrait stylisé du serveur) sinon avatar de démonstration local. */
+export function childPortraitSrc(identity: { avatarUrl?: string | null; avatarSeed: string; sex?: "M" | "F" }): string {
+  return identity.avatarUrl || childAvatarUri(identity.avatarSeed, identity.sex)
+}
+
 /** « Photo » des intervenants : sobre. */
 export function staffAvatarUri(seed: string): string {
   const key = `staff:${seed}`

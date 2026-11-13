@@ -54,6 +54,8 @@ export interface Identity {
   address: string
   language: string
   avatarSeed: string
+  /** portrait stylisé généré sur le serveur du centre (null : avatar de démonstration local) */
+  avatarUrl?: string | null
 }
 
 export interface Stay {
@@ -65,7 +67,7 @@ export interface Stay {
 
 export interface Journey {
   phase: PhaseId
-  phaseHistory: { phase: PhaseId; enteredAt: ISODate; stayId: string }[]
+  phaseHistory: { phase: PhaseId; enteredAt: ISODate; stayId: string; by?: string; comment?: string }[]
   status: ChildStatus
   entryDate: ISODate // entrée du séjour en cours
   referredBy: ReferralSource
@@ -96,11 +98,14 @@ export interface EconomicSituation {
   // les aides de l'État en cours sont lues dans AidApplication (une seule source)
 }
 
+/** Échelle scolaire tunisienne : 1 à 9 = 1re → 9e année de base ; 10 à 13 = 1re → 4e année secondaire. */
+export type SchoolGrade = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13
+export const SCHOOL_GRADES: SchoolGrade[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+
 export interface Schooling {
   lastSchool: string
-  nominalLevel: string // dernière classe fréquentée
-  actualLevel: string // niveau réel évalué
-  gapYears: number
+  nominalGrade: SchoolGrade | null // dernière classe fréquentée
+  actualGrade: SchoolGrade | null // niveau réel évalué (null : à évaluer)
   subjects: { subject: string; nominal: string; actual: string }[]
 }
 
