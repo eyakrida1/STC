@@ -7,7 +7,7 @@ import type { MoodLevel, Sex } from "@/types"
 
 const SIZES = {
   sm: { box: "size-10", ring: 3 },
-  md: { box: "size-14", ring: 4 },
+  md: { box: "size-16", ring: 4 }, // 64 px (cartes « Mes enfants »)
   lg: { box: "size-24", ring: 5 },
   xl: { box: "size-40", ring: 7 },
 } as const

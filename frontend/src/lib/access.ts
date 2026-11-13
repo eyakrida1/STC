@@ -13,7 +13,7 @@ export function isProfessional(role: Role): role is ProfessionalRole {
 
 /** Page d'arrivée après connexion. */
 export function homePathFor(role: Role): string {
-  return role === "directeur" ? "/direction" : "/enfants"
+  return role === "directeur" ? "/tableau-de-bord" : "/enfants"
 }
 
 /** Routes protégées : qui peut ouvrir quoi. */
@@ -22,7 +22,7 @@ export const ROUTE_ROLES = {
   childFile: ALL_ROLES, // /enfants/:id — partie commune (directeur : lecture seule)
   roadmap: ALL_ROLES, // /enfants/:id/roadmap (directeur : lecture seule)
   workspace: PRO_ROLES, // espaces propres (séances, notes reçues…)
-  dashboard: ["directeur"] as Role[], // /direction
+  dashboard: ["directeur"] as Role[], // /tableau-de-bord
   profile: ALL_ROLES, // /profil
 } satisfies Record<string, Role[]>
 

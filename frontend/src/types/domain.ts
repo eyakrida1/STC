@@ -197,6 +197,7 @@ export interface ChildSummary {
   pendingValidation: boolean // une partie de roadmap attend la validation de l'utilisateur connecté
   recentAbsences: number // sur les 7 derniers jours
   returned: boolean // revenu au centre après une sortie
+  lastActivityAt: ISODateTime | null // dernière séance enregistrée par l'équipe (date seule, jamais le contenu)
 }
 
 // ───────────────────────────── Séances à 3 sorties

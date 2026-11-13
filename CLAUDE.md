@@ -76,6 +76,9 @@ espacements multiples de 4, largeur max du contenu 1200 px (`max-w-page`), icôn
 1. **La « pop » est RÉSERVÉE à l'avatar de l'enfant et à la roadmap.** Couleurs `pop-*`, animations Motion,
    illustrations : uniquement dans `ChildAvatar` et les écrans/composants de roadmap. Partout ailleurs : sobre
    (surface blanche, bordure fine, sarcelle pour l'action principale).
+   Exceptions validées (ne pas en ajouter d'autres sans demande explicite) :
+   - l'illustration abstraite de la page de connexion (`LoginIllustration`, formes organiques, aucun visage) ;
+   - la pastille corail du nombre de nouvelles notes sur les cartes « Mes enfants » (texte `text-ink` pour l'AA).
 2. Couleurs de rôle et d'humeur = **pastilles et repères uniquement** (point, liseré, halo). Jamais en couleur de texte
    (contraste insuffisant) : le texte reste `text-ink` / `text-ink-muted`.
 3. Classes Tailwind **statiques** : pas de `bg-mood-${n}` construit dynamiquement ; passer par `lib/tokens.ts`.
@@ -104,7 +107,7 @@ espacements multiples de 4, largeur max du contenu 1200 px (`max-w-page`), icôn
 | `EmptyState` | icône + phrase + action |
 | `NoteCard` | note partagée reçue ; `unread` + `onOpen` (marque lue) |
 | `UnreadDivider` | trait « Nouvelles » (`tone="new"`) / « Déjà lues » |
-| `ChildAvatar` | avatar enfant (zone pop) : image ronde + halo couleur d'humeur ; `size` sm/md/lg/xl, `sex`. Version simple, à enrichir (expression selon l'humeur, accessoires, bulles d'intérêts) |
+| `ChildAvatar` | avatar enfant (zone pop) : image ronde + halo couleur d’humeur ; `size` sm 40 / md 64 / lg 96 / xl 160 px, `sex`. Version simple, à enrichir (expression selon l'humeur, accessoires, bulles d'intérêts) |
 | `UserAvatar` | photo d'un intervenant (sobre) |
 | `FullPageLoader` | chargement plein écran |
 
@@ -130,7 +133,7 @@ doit y être ajouté.**
 
 - **Connexion** : identifiant + mot de passe, message d'erreur générique, pas d'inscription.
   Déconnexion automatique après **30 min d'inactivité** (partagée entre onglets, vérifiée aussi au rechargement).
-- **Arrivée** : intervenants → `/enfants` (Mes enfants) ; directeur → `/direction` (tableau de bord).
+- **Arrivée** : intervenants → `/enfants` (Mes enfants) ; directeur → `/tableau-de-bord`.
 - **Intervenants** (éducateur, psychologue, social) : uniquement les enfants qui leur sont **assignés**.
   - Séances : chacun lit et écrit **ses** séances (psy : consultation, social : visite familiale, éducateur : observation).
     Note privée = l'auteur seul ; note partagée = destinataires cochés (état lu **par destinataire**) ;
@@ -153,10 +156,18 @@ doit y être ajouté.**
 
 | Route | Accès | État |
 |---|---|---|
-| `/login` | public | fait |
+| `/connexion` | public (`/login` y redirige) | fait — écran partagé illustration / formulaire |
 | `/styleguide` | public | fait |
 | `/` | connecté | redirige selon le rôle |
-| `/enfants` | intervenants | provisoire |
+| `/enfants` | intervenants | fait — Mes enfants (`pages/children/`) |
 | `/enfants/:childId/*` | intervenants assignés + directeur (lecture) | provisoire |
-| `/direction` | directeur | provisoire |
+| `/tableau-de-bord` | directeur | provisoire (page vide) |
 | `/profil` | tous | version simple (lecture) |
+
+### Mes enfants (`pages/children/`)
+
+- Données : `api.listChildren()` (déjà filtré sur les enfants assignés ; alertes calculées pour l'utilisateur connecté :
+  `unreadNotes`, `pendingValidation` pour **sa** partie de roadmap, `recentAbsences` sur 7 jours, `lastActivityAt`).
+- Filtres dans l'URL (`?q=`, `?phase=`, `?tri=priorite|nom|activite`) ; tri par défaut « Alertes d'abord ».
+- Recherche insensible à la casse et aux accents ; squelettes au chargement ; `EmptyState` + « Effacer les filtres ».
+- `ChildCard` est spécifique à la page (pas dans `components/cdis/`) ; toute la carte est un lien vers le dossier.

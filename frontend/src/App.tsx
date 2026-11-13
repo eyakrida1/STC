@@ -8,11 +8,12 @@ import { LoginPage } from "@/pages/LoginPage"
 import { NotFoundPage } from "@/pages/NotFoundPage"
 import { PlaceholderPage } from "@/pages/PlaceholderPage"
 import { ProfilePage } from "@/pages/ProfilePage"
+import { ChildrenPage } from "@/pages/children/ChildrenPage"
 import { StyleguidePage } from "@/pages/StyleguidePage"
 
 function HomeRedirect() {
   const { user } = useAuth()
-  return <Navigate to={user ? homePathFor(user.role) : "/login"} replace />
+  return <Navigate to={user ? homePathFor(user.role) : "/connexion"} replace />
 }
 
 function ChildrenPlaceholder() {
@@ -26,7 +27,8 @@ function DashboardPlaceholder() {
 }
 
 const router = createBrowserRouter([
-  { path: "/login", element: <LoginPage /> },
+  { path: "/connexion", element: <LoginPage /> },
+  { path: "/login", element: <Navigate to="/connexion" replace /> }, // ancienne adresse
   { path: "/styleguide", element: <StyleguidePage /> }, // public : revue design
   {
     element: (
@@ -40,7 +42,7 @@ const router = createBrowserRouter([
         path: "enfants",
         element: (
           <RequireAuth roles={ROUTE_ROLES.children}>
-            <ChildrenPlaceholder />
+            <ChildrenPage />
           </RequireAuth>
         ),
       },
@@ -53,7 +55,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "direction",
+        path: "tableau-de-bord",
         element: (
           <RequireAuth roles={ROUTE_ROLES.dashboard}>
             <DashboardPlaceholder />

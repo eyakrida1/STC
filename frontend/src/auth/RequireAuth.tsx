@@ -14,7 +14,7 @@ export function RequireAuth({ roles, children }: { roles?: Role[]; children: Rea
   const t = useT()
 
   if (initializing) return <FullPageLoader />
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  if (!user) return <Navigate to="/connexion" replace state={{ from: location.pathname }} />
   if (roles && !roles.includes(user.role)) {
     return (
       <EmptyState

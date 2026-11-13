@@ -62,7 +62,7 @@ export function UserMenu() {
           variant="destructive"
           onClick={async () => {
             await logout("manual")
-            navigate("/login", { replace: true })
+            navigate("/connexion", { replace: true })
           }}
         >
           <LogOut aria-hidden />

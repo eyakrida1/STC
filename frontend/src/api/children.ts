@@ -36,6 +36,12 @@ function summarize(child: Child, me: User): ChildSummary {
     pendingValidation,
     recentAbsences,
     returned: child.journey.stays.length > 1,
+    lastActivityAt:
+      data.sessions
+        .filter((s) => s.childId === child.id)
+        .map((s) => s.createdAt)
+        .sort()
+        .at(-1) ?? null,
   }
 }
 
