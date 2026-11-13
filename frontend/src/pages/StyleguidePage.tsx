@@ -23,6 +23,7 @@ import {
   PageHeader,
   PhaseBadge,
   PhaseTrack,
+  RoadmapRoad,
   RoleBadge,
   SelectField,
   TagsField,
@@ -101,6 +102,11 @@ const MOOD_SAMPLES = [
   { seed: "nour-mejri", sex: "F" },
   { seed: "skander-hammami", sex: "M" },
 ] as const
+
+const ROAD_SAMPLE = (() => {
+  const d = (n: number) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10)
+  return { entry: d(-240), returned: d(-60), dates: [d(-150), d(-20), d(20), d(45)] }
+})()
 
 const SAMPLE_INTERESTS = {
   hobbies: ["Pâtisserie", "Réseaux sociaux", "Danse"],
@@ -480,6 +486,20 @@ export function StyleguidePage() {
                 />
               </div>
             ))}
+          </div>
+        </Block>
+
+        {/* ───────── RoadmapRoad */}
+        <Block title={sec.road} id="sg-road">
+          <p className="max-w-prose text-sm text-ink-muted">{s.roadHint}</p>
+          <div className="rounded-card border border-line bg-surface p-3 shadow-card sm:p-5">
+            <RoadmapRoad
+              phase={3}
+              entryDate={ROAD_SAMPLE.entry}
+              returnDate={ROAD_SAMPLE.returned}
+              avatar={{ src: childAvatarUri("yassine-ben-salah", "M"), name: "Yassine", mood: 4 }}
+              flags={s.roadFlags.map((f, i) => ({ id: `sg-${i}`, part: f.part, label: f.label, date: ROAD_SAMPLE.dates[i], reached: i < 2 }))}
+            />
           </div>
         </Block>
 

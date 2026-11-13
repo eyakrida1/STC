@@ -14,7 +14,9 @@ export {
 } from "./notifications"
 export {
   commentRoadmapProposal,
+  generateRoadmapProposal,
   getRoadmap,
+  getRoadmapSources,
   rejectRoadmapPart,
   requestRoadmapUpdate,
   updateRoadmapGoal,

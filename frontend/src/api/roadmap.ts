@@ -1,15 +1,15 @@
-import { addDays, localISODate } from "@/lib/format"
-import { canRequestRoadmapUpdate, canValidateRoadmapPart, ROADMAP_OWNERS } from "@/lib/access"
+import { canRequestRoadmapUpdate, canValidateRoadmapPart, isProfessional, ROADMAP_OWNERS } from "@/lib/access"
 import type {
   ProfessionalRole,
   Roadmap,
-  RoadmapChange,
   RoadmapContentMap,
   RoadmapPart,
   RoadmapPartKey,
   RoadmapProposal,
-  Session,
+  RoadmapSource,
+  SessionKind,
 } from "@/types"
+import { draftEducation, draftPsychological, draftSocial } from "./aiSimulator"
 import { ApiError, db, newId, nowISO, persist, requireChild, requireUser, simulate } from "./client"
 import { notify } from "./notifications"
 
@@ -28,58 +28,30 @@ export function pendingAiNoteCount(childId: string): number {
   return db().sessions.filter((s) => s.childId === childId && s.aiNote && !s.aiNote.consumedByProposalId).length
 }
 
-// ───────────────────────────── IA simulée
-// Remplacée plus tard par le backend (LLM). Ne reçoit que les notes « pour l'IA », jamais les notes privées
-// ni les blocs Santé / Situation judiciaire.
+/** Quelles notes nourrissent quelle partie. */
 const PART_SOURCES: Record<RoadmapPartKey, ProfessionalRole[]> = {
   education: ["educateur", "psychologue"],
   psychologique: ["psychologue", "educateur"],
   sociale: ["social"],
 }
 
-function draftPart<K extends RoadmapPartKey>(
-  key: K,
-  current: RoadmapContentMap[K],
-  notes: Session[],
-): { content: RoadmapContentMap[K]; changes: RoadmapChange[] } | null {
-  const relevant = notes.filter((s) => PART_SOURCES[key].includes(s.authorRole))
-  if (!relevant.length) return null // partie inchangée : pas reproposée
-  const content = structuredClone(current)
-  const changes: RoadmapChange[] = []
-  const due = addDays(localISODate(), 21)
-  for (const s of relevant) {
-    const text = s.aiNote!.text
-    if (key === "education") {
-      const c = content as RoadmapContentMap["education"]
-      c.currentActivities = [...c.currentActivities, text]
-      changes.push({ field: "currentActivities", summary: text, sourceSessionIds: [s.id] })
-    } else if (key === "psychologique") {
-      const c = content as RoadmapContentMap["psychologique"]
-      c.progress = [...c.progress, text]
-      changes.push({ field: "progress", summary: text, sourceSessionIds: [s.id] })
-    } else {
-      const c = content as RoadmapContentMap["sociale"]
-      c.nextSteps = [...c.nextSteps, { label: text, dueDate: due }]
-      changes.push({ field: "nextSteps", summary: text, sourceSessionIds: [s.id] })
-    }
-  }
-  return { content, changes }
-}
-
-/** Usage interne : génère une proposition partie par partie à partir des notes pour l'IA non utilisées. */
-export function generateProposalSync(childId: string, trigger: "demande" | "auto", requestedBy: string | null): Roadmap {
+/**
+ * Usage interne : produit une proposition partie par partie à partir des notes pour l'IA non utilisées.
+ * Une partie dont les données n'ont pas changé n'est pas reproposée. Renvoie les parties proposées.
+ */
+export function generateProposalSync(childId: string, trigger: "demande" | "auto", requestedBy: string | null): RoadmapPartKey[] {
   const data = db()
   const roadmap = data.roadmaps.find((r) => r.childId === childId)
   const child = data.children.find((c) => c.id === childId)
   if (!roadmap || !child) throw new ApiError("not_found")
   const notes = data.sessions.filter((s) => s.childId === childId && s.aiNote && !s.aiNote.consumedByProposalId)
+  const aids = data.aidApplications.filter((a) => a.childId === childId)
+  const proposed: RoadmapPartKey[] = []
 
-  const build = <K extends RoadmapPartKey>(key: K) => {
-    const part = roadmap.parts[key] as RoadmapPart<RoadmapContentMap[K]>
-    const base = part.pending?.content ?? part.validated.content
-    const draft = draftPart(key, base, notes)
+  const propose = <K extends RoadmapPartKey>(key: K, draft: { content: RoadmapContentMap[K]; changes: RoadmapProposal<RoadmapContentMap[K]>["changes"] } | null) => {
     if (!draft) return
-    const proposal: RoadmapProposal<RoadmapContentMap[K]> = {
+    const part = roadmap.parts[key] as RoadmapPart<RoadmapContentMap[K]>
+    part.pending = {
       id: newId("pr"),
       createdAt: nowISO(),
       trigger,
@@ -88,27 +60,76 @@ export function generateProposalSync(childId: string, trigger: "demande" | "auto
       changes: [...(part.pending?.changes ?? []), ...draft.changes],
       comments: part.pending?.comments ?? [],
     }
-    part.pending = proposal
-    const used = new Set(draft.changes.flatMap((c) => c.sourceSessionIds))
-    for (const s of notes) {
-      if (used.has(s.id) && !s.aiNote!.consumedByProposalId) s.aiNote!.consumedByProposalId = proposal.id
-    }
+    proposed.push(key)
     notify(child.assigned[ROADMAP_OWNERS[key]], "validation_attendue", childId)
   }
-  build("education")
-  build("psychologique")
-  build("sociale")
+
+  const sourcesFor = (key: RoadmapPartKey) => notes.filter((s) => PART_SOURCES[key].includes(s.authorRole))
+  const base = <K extends RoadmapPartKey>(key: K) =>
+    (roadmap.parts[key].pending?.content ?? roadmap.parts[key].validated.content) as RoadmapContentMap[K]
+
+  propose("education", draftEducation(base("education"), sourcesFor("education")))
+  propose("psychologique", draftPsychological(base("psychologique"), sourcesFor("psychologique")))
+  propose("sociale", draftSocial(base("sociale"), sourcesFor("sociale"), aids, data.aidPrograms))
+
+  // les notes lues par l'IA sont consommées (elles ne comptent plus pour le seuil de 5)
+  const stamp = newId("gen")
+  notes.forEach((s) => {
+    s.aiNote!.consumedByProposalId = stamp
+  })
   persist()
-  return roadmap
+  return proposed
 }
 
-/** « Mettre à jour la roadmap » — n'importe quel intervenant. */
-export function requestRoadmapUpdate(childId: string): Promise<Roadmap> {
+/**
+ * « Mettre à jour la roadmap ». Point de branchement de la future IA : aujourd'hui une simulation déterministe
+ * avec une latence réaliste (~2 s) ; demain un appel au backend Django (même signature).
+ */
+export async function generateRoadmapProposal(
+  childId: string,
+): Promise<{ roadmap: Roadmap; proposedParts: RoadmapPartKey[] }> {
+  await new Promise((r) => setTimeout(r, 1700)) // l'IA « rédige »
   return simulate(() => {
     const me = requireUser()
     requireChild(me, childId)
     if (!canRequestRoadmapUpdate(me.role)) throw new ApiError("forbidden")
-    return generateProposalSync(childId, "demande", me.id)
+    const proposedParts = generateProposalSync(childId, "demande", me.id)
+    return { roadmap: db().roadmaps.find((r) => r.childId === childId)!, proposedParts }
+  })
+}
+
+/** @deprecated garder `generateRoadmapProposal` */
+export const requestRoadmapUpdate = generateRoadmapProposal
+
+/**
+ * Sources citées par les propositions : métadonnées pour tous (rôle, date, type de séance),
+ * texte de la note pour l'IA SEULEMENT pour son auteur (personne d'autre ne lit ces notes).
+ */
+export function getRoadmapSources(childId: string): Promise<RoadmapSource[]> {
+  return simulate(() => {
+    const me = requireUser()
+    requireChild(me, childId)
+    const users = db().users
+    return db()
+      .sessions.filter((s) => s.childId === childId && s.aiNote)
+      .map((s) => {
+        const author = users.find((u) => u.id === s.authorId)
+        return {
+          sessionId: s.id,
+          authorRole: s.authorRole,
+          authorName: author ? `${author.firstName} ${author.lastName}` : "",
+          sessionKind: s.details.kind as SessionKind,
+          date: s.date,
+          text: isProfessional(me.role) && s.authorId === me.id ? s.aiNote!.text : null,
+        }
+      })
+  })
+}
+
+function closeValidationNotifications(userId: string, childId: string) {
+  const now = nowISO()
+  db().notifications.forEach((n) => {
+    if (n.userId === userId && n.childId === childId && n.kind === "validation_attendue" && !n.readAt) n.readAt = now
   })
 }
 
@@ -120,7 +141,7 @@ export function validateRoadmapPart<K extends RoadmapPartKey>(
 ): Promise<Roadmap> {
   return simulate(() => {
     const me = requireUser()
-    requireChild(me, childId)
+    const child = requireChild(me, childId)
     if (!canValidateRoadmapPart(me.role, key)) throw new ApiError("forbidden")
     const roadmap = db().roadmaps.find((r) => r.childId === childId)!
     const part = roadmap.parts[key] as RoadmapPart<RoadmapContentMap[K]>
@@ -139,6 +160,11 @@ export function validateRoadmapPart<K extends RoadmapPartKey>(
     part.history.push(version)
     part.pending = null
     roadmap.updatedAt = version.validatedAt
+    roadmap.progressPercent = Math.min(100, roadmap.progressPercent + 5)
+    if (!Object.values(roadmap.parts).some((p) => p.pending && p.owner === me.role)) closeValidationNotifications(me.id, child.id)
+    Object.values(child.assigned)
+      .filter((id) => id !== me.id)
+      .forEach((id) => notify(id, "roadmap_mise_a_jour", child.id))
     persist()
     return roadmap
   })
@@ -156,6 +182,7 @@ export function rejectRoadmapPart(childId: string, key: RoadmapPartKey, justific
     if (!part.pending) throw new ApiError("conflict")
     part.rejected.push({ proposalId: part.pending.id, by: me.id, at: nowISO(), justification: justification.trim() })
     part.pending = null
+    closeValidationNotifications(me.id, childId)
     persist()
     return roadmap
   })
@@ -167,6 +194,7 @@ export function commentRoadmapProposal(childId: string, key: RoadmapPartKey, tex
     const me = requireUser()
     requireChild(me, childId)
     if (!canRequestRoadmapUpdate(me.role)) throw new ApiError("forbidden")
+    if (!text.trim()) throw new ApiError("invalid")
     const roadmap = db().roadmaps.find((r) => r.childId === childId)!
     const pending = roadmap.parts[key].pending
     if (!pending) throw new ApiError("conflict")

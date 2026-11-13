@@ -353,6 +353,16 @@ export interface RoadmapChange {
   sourceSessionIds: string[] // notes qui justifient le changement
 }
 
+/** Note citée par une proposition IA. `text` n'est rempli que pour l'auteur de la note. */
+export interface RoadmapSource {
+  sessionId: string
+  authorRole: ProfessionalRole
+  authorName: string
+  sessionKind: SessionKind
+  date: ISODate
+  text: string | null
+}
+
 export interface RoadmapComment {
   id: string
   authorId: string

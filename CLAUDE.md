@@ -105,6 +105,7 @@ espacements multiples de 4, largeur max du contenu 1200 px (`max-w-page`), icôn
 | `PhaseBadge` | « 3 · Accompagnement » ; `variant="long"` libellé complet |
 | `PhaseTrack` | mini-frise des 5 phases (passées pleines, actuelle en surbrillance, à venir en creux) |
 | `MoodBadge` | humeur 1–5 ; `showLabel={false}` = point seul ; `withPrefix` (« Humeur : bien ») + `detail` (« partagée par le psy le 12/11 ») |
+| `RoadmapRoad` | la roadmap **dessinée** (zone pop) : route SVG sinueuse, 5 panneaux de phase (franchies colorées, à venir en pointillés), avatar posé sur la route qui avance une fois (~1,5 s), fanions par partie (`RoadFlag` : pleins = atteints et datés, contour = prochains pas ; clic/Entrée → info-bulle), détour « Retour au centre », légende ; horizontale ≥ 640 px, verticale en dessous ; géométrie calculée par `lib/pathSampler.ts` (pur, sans DOM) |
 | `AvatarLive` | **avatar vivant** de l'en-tête du dossier (zone pop) : portrait 160 px (`src` = `childPortraitSrc(identity)`), halo animé couleur d'humeur (respiration lente 1-2, immobile 3, pulsation + étincelles 4-5), bulles pop en orbite (`buildBubbles(interests)`, 8 max, icône + mot, info-bulle) qui n'empiètent jamais sur le portrait ; sous 640 px les bulles passent en ligne sous le portrait ; `footer` = MoodBadge. Tout est coupé si `prefers-reduced-motion` |
 | `TextField`, `TextareaField`, `SelectField`, `CheckboxField`, `TagsField`, `FieldGroup`, `Field` | champs de formulaire (`form.tsx`) : libellé visible, aide, erreur reliée par `aria-describedby`, hauteur 44 px |
 | `StatCard` | chiffre clé ; `tone="attention"` |
@@ -164,7 +165,7 @@ doit y être ajouté.**
 | `/styleguide` | public | fait |
 | `/` | connecté | redirige selon le rôle |
 | `/enfants` | intervenants | fait — Mes enfants (`pages/children/`) |
-| `/enfants/:childId/:tab?` | intervenants assignés + directeur (lecture) | fait — dossier enfant (`pages/child/`) ; Dossier, Mon espace et Notes reçues remplis ; Roadmap « bientôt » |
+| `/enfants/:childId/:tab?` | intervenants assignés + directeur (lecture) | fait — dossier enfant (`pages/child/`) ; les 4 onglets sont remplis |
 | `/tableau-de-bord` | directeur | provisoire (page vide) |
 | `/profil` | tous | version simple (lecture) |
 
@@ -206,3 +207,18 @@ doit y être ajouté.**
   la notification « note reçue » est lue quand plus aucune note de l'enfant n'est non lue.
 - Synchronisation : `lib/events.ts` (`emitDataChanged` / `useDataChanged`) rafraîchit la cloche ;
   le compteur d'onglet est remonté à `ChildPage`.
+
+### Roadmap (`pages/child/roadmap/`) — le moment « waouh »
+
+- Bandeau : objectif, anneau de progression, dernière version validée, « Mettre à jour la roadmap » +
+  compteur « n / 5 notes pour l'IA » (intervenants ; le directeur est en lecture seule).
+- `RoadmapRoad` au centre, puis 3 `PartCard` (couleurs = rôles responsables : éducation ambre, psychologique violet,
+  sociale bleu). Une partie non validée affiche TOUJOURS sa version validée + bandeau « Nouvelle proposition de l'IA ».
+- IA : `api.generateRoadmapProposal(childId)` = **point de branchement du futur LLM**. Aujourd'hui `api/aiSimulator.ts`
+  (déterministe, ~2 s de latence) ; il ne lit que les notes pour l'IA, la roadmap validée et les aides.
+  Une partie sans nouvelle donnée n'est pas reproposée ; les notes lues sont consommées (compteur remis à 0).
+- `ProposalSheet` : avant / après par rubrique (`diff.ts` : ajouts verts, retraits barrés), « Basé sur : note de … »
+  (`api.getRoadmapSources` : le texte d'une note pour l'IA n'est montré qu'à son auteur). Responsable : Valider /
+  Modifier (décocher des changements, `applyChoices`) / Rejeter, justification obligatoire pour Modifier et Rejeter.
+  Les autres : commentaires. Après validation : confettis (~1 s, `Celebration`), toast, fanions mis à jour.
+- `HistorySheet` : versions (initiale, validée, modifiée + justification) et rejets.

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { Link, Navigate, useParams } from "react-router"
-import { ArrowLeft, Construction, FileQuestion, TriangleAlert } from "lucide-react"
+import { ArrowLeft, FileQuestion, TriangleAlert } from "lucide-react"
 import * as api from "@/api"
 import { useCurrentUser } from "@/auth/context"
 import { EmptyState, FullPageLoader } from "@/components/cdis"
@@ -13,6 +13,7 @@ import { ChildTabs } from "./ChildTabs"
 import { resolveTab } from "./tabs"
 import { DossierTab } from "./dossier/DossierTab"
 import { NotesTab } from "./notes/NotesTab"
+import { RoadmapTab } from "./roadmap/RoadmapTab"
 import { SpaceTab } from "./space/SpaceTab"
 
 export interface ChildPageData {
@@ -109,9 +110,7 @@ export function ChildPage() {
         ) : activeTab === "notes" ? (
           <NotesTab childId={data.child.id} onUnreadChange={(n) => setData((d) => (d ? { ...d, unreadNotes: n } : d))} />
         ) : (
-          <div className="rounded-card border border-line bg-surface shadow-card">
-            <EmptyState icon={Construction} title={p.tabs.soonTitle} description={p.tabs.soonText} />
-          </div>
+          <RoadmapTab child={data.child} team={data.team} />
         )}
       </section>
     </div>
