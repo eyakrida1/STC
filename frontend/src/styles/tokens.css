@@ -10,7 +10,7 @@
   --cdis-line: #ece6dc;
   --cdis-line-strong: #9c9285; /* bordure de champ : contraste 3:1 sur blanc */
   --cdis-ink: #1f2a37;
-  --cdis-ink-muted: #6b7280;
+  --cdis-ink-muted: #5f6673; /* 5:1 sur bg-muted, 5,4:1 sur le sable */
 
   /* Primaire */
   --cdis-teal: #0f766e;

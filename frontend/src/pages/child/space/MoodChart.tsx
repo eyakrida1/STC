@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react"
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { Info, LineChart as LineIcon } from "lucide-react"
+import { Info, LineChart as LineIcon, TriangleAlert } from "lucide-react"
 import * as api from "@/api"
 import { EmptyState } from "@/components/cdis"
+import { Button } from "@/components/ui/button"
 import { useI18n } from "@/i18n/context"
 import { addDays, localISODate } from "@/lib/format"
 import { cn } from "@/lib/utils"
@@ -34,13 +35,17 @@ export function MoodChart({ child, team, onChildChange }: { child: Child; team: 
   const [hidden, setHidden] = useState<Set<MoodScaleKey>>(new Set())
   const [detail, setDetail] = useState<Session | null>(null)
   const [editing, setEditing] = useState<Session | null>(null)
+  const [failed, setFailed] = useState(false)
 
   const load = useCallback(() => {
     const since = addDays(localISODate(), -183)
     api
       .listMoodScales(child.id)
-      .then((list) => setPoints(list.filter((x) => x.date >= since).map((x) => ({ sessionId: x.sessionId, date: x.date, ...x.scales }))))
-      .catch(() => setPoints([]))
+      .then((list) => {
+        setPoints(list.filter((x) => x.date >= since).map((x) => ({ sessionId: x.sessionId, date: x.date, ...x.scales })))
+        setFailed(false)
+      })
+      .catch(() => setFailed(true))
   }, [child.id])
   useEffect(() => {
     load()
@@ -68,7 +73,11 @@ export function MoodChart({ child, team, onChildChange }: { child: Child; team: 
         </p>
       </div>
 
-      {points === null ? (
+      {failed ? (
+        <div className="rounded-card border border-line bg-surface shadow-card">
+          <EmptyState icon={TriangleAlert} title={t.pages.child.loadError} action={<Button variant="outline" onClick={load}>{t.pages.children.retry}</Button>} />
+        </div>
+      ) : points === null ? (
         <div className="h-80 animate-pulse rounded-card border border-line bg-surface" aria-busy="true" />
       ) : points.length === 0 ? (
         <div className="rounded-card border border-line bg-surface shadow-card">

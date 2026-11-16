@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react"
-import { Check, ChevronLeft, ChevronRight, Eye, Loader2 } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, Eye, Loader2, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 import * as api from "@/api"
-import { StatCard, TextareaField } from "@/components/cdis"
+import { EmptyState, StatCard, TextareaField } from "@/components/cdis"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useI18n } from "@/i18n/context"
@@ -25,10 +25,17 @@ export function AttendanceMonth({ childId, readOnly, heldBy }: { childId: string
   const [month, setMonth] = useState(() => monthStart())
   const [entries, setEntries] = useState<AttendanceEntry[] | null>(null)
   const [editing, setEditing] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
 
   const days = daysInMonth(month)
   const load = useCallback(() => {
-    api.getAttendance(childId, days[0], days.at(-1)!).then(setEntries).catch(() => setEntries([]))
+    api
+      .getAttendance(childId, days[0], days.at(-1)!)
+      .then((list) => {
+        setEntries(list)
+        setFailed(false)
+      })
+      .catch(() => setFailed(true))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [childId, month])
   useEffect(() => {
@@ -88,7 +95,13 @@ export function AttendanceMonth({ childId, readOnly, heldBy }: { childId: string
         <StatCard label={A.absences} value={absent} hint={justified ? A.justified(justified) : undefined} tone={absent > 3 ? "attention" : "default"} />
       </div>
 
-      <div className="rounded-card border border-line bg-surface p-3 shadow-card sm:p-4">
+      {failed && (
+        <div className="rounded-card border border-line bg-surface shadow-card">
+          <EmptyState icon={TriangleAlert} title={t.pages.child.loadError} action={<Button variant="outline" onClick={load}>{t.pages.children.retry}</Button>} />
+        </div>
+      )}
+
+      <div className={cn("rounded-card border border-line bg-surface p-3 shadow-card sm:p-4", failed && "hidden")}>
         <div className="grid grid-cols-7 gap-1 sm:gap-2">
           <div className="contents">
             {weekdays.map((w) => (

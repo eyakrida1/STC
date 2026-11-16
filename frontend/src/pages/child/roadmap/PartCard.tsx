@@ -9,6 +9,8 @@ import { formatDate } from "@/lib/format"
 import { MOOD_COLOR_VAR } from "@/lib/tokens"
 import { cn } from "@/lib/utils"
 import type {
+  AidApplication,
+  AidProgram,
   Child,
   EducationContent,
   MoodLevel,
@@ -101,6 +103,8 @@ export function PartCard({
   part,
   roadmap,
   child,
+  aids,
+  programs,
   onOpenProposal,
   onOpenHistory,
   justValidated,
@@ -108,6 +112,8 @@ export function PartCard({
   part: RoadmapPartKey
   roadmap: Roadmap
   child: Child
+  aids: AidApplication[]
+  programs: AidProgram[]
   onOpenProposal: () => void
   onOpenHistory: () => void
   justValidated: boolean
@@ -170,9 +176,9 @@ export function PartCard({
 
       {/* tant que la partie n'est pas validée, on affiche la version validée précédente */}
       <div className="flex flex-1 flex-col gap-4 border-t border-line p-5">
-        {part === "education" && <EducationBody c={p.validated.content as EducationContent} color={style.color} female={child.identity.sex === "F"} />}
+        {part === "education" && <EducationBody c={p.validated.content as EducationContent} color={style.color} child={child} />}
         {part === "psychologique" && <PsyBody c={p.validated.content as PsychologicalContent} child={child} />}
-        {part === "sociale" && <SocialBody c={p.validated.content as SocialContent} />}
+        {part === "sociale" && <SocialBody c={p.validated.content as SocialContent} aids={aids} programs={programs} />}
       </div>
 
       <footer className="border-t border-line px-5 py-3">
@@ -185,13 +191,18 @@ export function PartCard({
   )
 }
 
-function EducationBody({ c, color, female }: { c: EducationContent; color: string; female: boolean }) {
+function EducationBody({ c, color, child }: { c: EducationContent; color: string; child: Child }) {
+  const female = child.identity.sex === "F"
+  const grade = child.schooling.actualGrade
   const { t, intlLocale } = useI18n()
   const E = t.roadmap.edu
   return (
     <>
       <Block title={E.progress}>
-        <p className="font-medium">{E.levels(c.levelAtEntry, c.levelNow)}</p>
+        <p className="font-medium">
+          {E.levels(c.levelAtEntry, grade ? t.pages.child.grades[grade] : t.pages.child.schooling.toEvaluate)}
+        </p>
+        <p className="text-xs text-ink-muted">{E.levelLive}</p>
       </Block>
       <Block title={E.milestones}>
         <List empty={t.roadmap.empty} items={c.milestones.map((m) => <>{formatDate(m.date, intlLocale)} · {m.label}</>)} />
@@ -263,7 +274,7 @@ function PsyBody({ c, child }: { c: PsychologicalContent; child: Child }) {
   )
 }
 
-function SocialBody({ c }: { c: SocialContent }) {
+function SocialBody({ c, aids, programs }: { c: SocialContent; aids: AidApplication[]; programs: AidProgram[] }) {
   const { t } = useI18n()
   const S = t.roadmap.soc
   return (
@@ -272,7 +283,14 @@ function SocialBody({ c }: { c: SocialContent }) {
         <p>{c.familySummary}</p>
       </Block>
       <Block title={S.aids}>
-        <List empty={t.roadmap.empty} items={c.aidsSummary} />
+        {/* en direct depuis le suivi des aides (espace de l'intervenant social) */}
+        <List
+          empty={t.roadmap.empty}
+          items={aids
+            .filter((a) => a.status !== "refuse")
+            .map((a) => `${programs.find((p) => p.id === a.programId)?.label ?? a.programId} : ${t.aids[a.status].toLowerCase()}`)}
+        />
+        <p className="mt-1 text-xs text-ink-muted">{t.roadmap.live}</p>
       </Block>
       <Block title={S.nextSteps}>
         <Steps steps={c.nextSteps} />

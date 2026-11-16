@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState, type DragEvent, type FormEvent } from "react"
-import { ChevronLeft, ChevronRight, Eye, Loader2, Plus, Trash2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Eye, Loader2, Plus, Trash2, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 import * as api from "@/api"
-import { SelectField, TextareaField, TextField } from "@/components/cdis"
+import { EmptyState, SelectField, TextareaField, TextField } from "@/components/cdis"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useI18n } from "@/i18n/context"
@@ -34,9 +34,16 @@ export function ActivitiesWeek({ childId, readOnly, heldBy }: { childId: string;
   const [items, setItems] = useState<Activity[] | null>(null)
   const [editing, setEditing] = useState<Draft | null>(null)
   const [dropDay, setDropDay] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
 
   const load = useCallback(() => {
-    api.listActivities(childId, week).then(setItems).catch(() => setItems([]))
+    api
+      .listActivities(childId, week)
+      .then((list) => {
+        setItems(list)
+        setFailed(false)
+      })
+      .catch(() => setFailed(true))
   }, [childId, week])
   useEffect(() => {
     load()
@@ -113,7 +120,11 @@ export function ActivitiesWeek({ childId, readOnly, heldBy }: { childId: string;
         <p className="text-sm text-ink-muted">{A.dragHint}</p>
       )}
 
-      {items === null ? (
+      {failed ? (
+        <div className="rounded-card border border-line bg-surface shadow-card">
+          <EmptyState icon={TriangleAlert} title={t.pages.child.loadError} action={<Button variant="outline" onClick={load}>{t.pages.children.retry}</Button>} />
+        </div>
+      ) : items === null ? (
         <div className="h-64 animate-pulse rounded-card border border-line bg-surface" aria-busy="true" />
       ) : (
         <ol className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
@@ -137,7 +148,7 @@ export function ActivitiesWeek({ childId, readOnly, heldBy }: { childId: string;
                       onDragLeave={readOnly ? undefined : () => setDropDay((d) => (d === dropKey ? null : d))}
                       onDrop={readOnly ? undefined : (e) => onDrop(e, day, slot)}
                     >
-                      <span className="text-[11px] font-semibold tracking-wide text-ink-muted uppercase">{slot === "matin" ? A.morning : A.afternoon}</span>
+                      <span className="text-xs font-semibold tracking-wide text-ink-muted uppercase">{slot === "matin" ? A.morning : A.afternoon}</span>
                       {list.map((a) => {
                         const body = (
                           <>

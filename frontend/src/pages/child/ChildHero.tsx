@@ -44,7 +44,7 @@ export function ChildHero({
     >
       <div className="grid items-center gap-6 p-5 sm:p-8 lg:grid-cols-[500px_1fr] lg:gap-8">
         <AvatarLive
-          src={childPortraitSrc({ ...identity, sex: identity.sex })}
+          src={childPortraitSrc({ ...identity, sex: identity.sex }, mood.level)}
           name={identity.firstName}
           mood={mood.level}
           bubbles={buildBubbles(child.interests)}

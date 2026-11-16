@@ -162,7 +162,7 @@ export function DashboardPage() {
       <PageHeader title={D.titleWithPole(stats.poleName)} description={D.periodRange(fmt(stats.from), fmt(stats.to))} actions={periodFilter} />
 
       {/* ───────── 4 chiffres clés */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard label={D.kpis.followed} value={k.childrenFollowed.value ?? "—"} hint={D.kpis.followedHint} icon={Users} trend={trend(k.childrenFollowed, "count", null)} />
         <StatCard
           label={D.kpis.flows}
@@ -253,7 +253,7 @@ export function DashboardPage() {
                   data={[
                     { label: D.children.aidsLabels.depose, value: stats.aids.depose, color: "var(--cdis-phase-1)" },
                     { label: D.children.aidsLabels.accorde, value: stats.aids.accorde, color: "var(--cdis-att-present)" },
-                    { label: D.children.aidsLabels.refuse, value: stats.aids.refuse, color: "var(--cdis-att-absent)" },
+                    { label: D.children.aidsLabels.refuse, value: stats.aids.refuse, color: "var(--destructive)" },
                   ]}
                 />
               </ChartCard>

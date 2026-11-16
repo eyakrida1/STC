@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router"
-import { ChevronDown, LogOut, RotateCcw, UserRound } from "lucide-react"
-import { toast } from "sonner"
-import * as api from "@/api"
+import { ChevronDown, LogOut, UserRound } from "lucide-react"
 import { useAuth, useCurrentUser } from "@/auth/context"
 import { RoleBadge, UserAvatar } from "@/components/cdis"
 import {
@@ -46,16 +44,6 @@ export function UserMenu() {
         <DropdownMenuItem onClick={() => navigate("/profil")}>
           <UserRound aria-hidden />
           {t.shell.myProfile}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={async () => {
-            await api.resetDemo()
-            toast.success(t.shell.resetDemoDone)
-            navigate(0)
-          }}
-        >
-          <RotateCcw aria-hidden />
-          {t.shell.resetDemo}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

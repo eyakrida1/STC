@@ -125,7 +125,7 @@ export function ChildPage() {
         ) : activeTab === "notes" ? (
           <NotesTab childId={data.child.id} onUnreadChange={(n) => setData((d) => (d ? { ...d, unreadNotes: n } : d))} />
         ) : (
-          <RoadmapTab child={data.child} team={data.team} />
+          <RoadmapTab child={data.child} team={data.team} aids={data.aids} programs={data.programs} />
         )}
       </section>
     </div>

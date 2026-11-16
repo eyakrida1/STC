@@ -55,7 +55,7 @@ export function ChildAvatar({
       />
       <motion.img
         key={mood}
-        src={childAvatarUri(seed, sex)}
+        src={childAvatarUri(seed, sex, mood)}
         alt={t.components.avatarAlt(name)}
         draggable={false}
         className="relative size-full rounded-full bg-surface object-cover"

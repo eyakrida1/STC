@@ -138,6 +138,12 @@ export function RoadmapRoad({
     // écarte un peu les fanions trop proches
     items.sort((a, b) => a.tt - b.tt)
     for (let i = 1; i < items.length; i++) if (items[i].tt - items[i - 1].tt < 0.025) items[i].tt = items[i - 1].tt + 0.025
+    // écarte les fanions des panneaux de phase (et de l'avatar) pour éviter tout chevauchement
+    const avoid = [...Object.values(STOPS), avatarT]
+    for (const it of items) {
+      const near = avoid.find((s) => Math.abs(it.tt - s) < 0.04)
+      if (near !== undefined) it.tt = near + (it.tt >= near ? 0.04 : -0.04)
+    }
     return items.map((it, i) => ({ ...it, side: i % 2 === 0 ? 1 : -1 }))
   }, [flags, entryDate, avatarT, now])
 
@@ -186,7 +192,7 @@ export function RoadmapRoad({
         <path d={L.hills[1]} fill="var(--cdis-phase-5)" opacity="0.18" />
         {L.trees.map(([x, y], i) => (
           <g key={i} aria-hidden>
-            <rect x={x - 2} y={y} width="4" height="14" rx="1" fill="#8a6a4a" opacity="0.7" />
+            <rect x={x - 2} y={y} width="4" height="14" rx="1" fill="var(--cdis-phase-2-ink)" opacity="0.7" />
             <circle cx={x} cy={y - 4} r="11" fill="var(--cdis-phase-5)" opacity="0.55" />
           </g>
         ))}
@@ -204,7 +210,7 @@ export function RoadmapRoad({
           strokeLinecap="round"
           strokeDasharray={`${progress} 1`}
         />
-        <path d={L.road} pathLength={1} fill="none" stroke="#fff" strokeWidth="2.5" strokeDasharray={`${progress} 1`} opacity="0.9" />
+        <path d={L.road} pathLength={1} fill="none" stroke="var(--cdis-surface)" strokeWidth="2.5" strokeDasharray={`${progress} 1`} opacity="0.9" />
 
         {len > 0 && (
           <>
@@ -233,7 +239,7 @@ export function RoadmapRoad({
               const p = at(0)
               return (
                 <g aria-hidden>
-                  <circle cx={p.x} cy={p.y} r="9" fill="var(--cdis-teal)" stroke="#fff" strokeWidth="3" />
+                  <circle cx={p.x} cy={p.y} r="9" fill="var(--cdis-teal)" stroke="var(--cdis-surface)" strokeWidth="3" />
                   <text x={wide ? p.x - 8 : p.x + 18} y={wide ? p.y + 34 : p.y - 2} fontSize="12" fontWeight="600" fill="var(--cdis-ink)">
                     {R.start}
                   </text>
@@ -277,19 +283,19 @@ export function RoadmapRoad({
               return (
                 <g key={ph} aria-hidden>
                   <line x1={p.x} y1={p.y} x2={sx} y2={sy} stroke="var(--cdis-ink-muted)" strokeWidth="2" strokeDasharray={passed ? undefined : "3 4"} />
-                  <circle cx={p.x} cy={p.y} r={ph === phase ? 9 : 7} fill={passed ? color : "var(--cdis-surface)"} stroke={passed ? "#fff" : color} strokeWidth="3" strokeDasharray={passed ? undefined : "3 3"} />
+                  <circle cx={p.x} cy={p.y} r={ph === phase ? 9 : 7} fill={passed ? color : "var(--cdis-surface)"} stroke={passed ? "var(--cdis-surface)" : color} strokeWidth="3" strokeDasharray={passed ? undefined : "3 3"} />
                   <rect
                     x={sx - w / 2}
                     y={sy - 14}
                     width={w}
                     height="28"
                     rx="8"
-                    fill={passed ? color : "var(--cdis-surface)"}
+                    fill={passed ? `var(--cdis-phase-${ph}-soft)` : "var(--cdis-surface)"}
                     stroke={color}
-                    strokeWidth="2"
+                    strokeWidth={passed ? 2.5 : 2}
                     strokeDasharray={passed ? undefined : "5 4"}
                   />
-                  <text x={sx} y={sy + 4.5} textAnchor="middle" fontSize="12" fontWeight="600" fill={passed ? "#fff" : "var(--cdis-ink)"} style={passed ? { paintOrder: "stroke", stroke: "rgb(0 0 0 / 0.18)", strokeWidth: 2 } : undefined}>
+                  <text x={sx} y={sy + 4.5} textAnchor="middle" fontSize="12" fontWeight="600" fill={passed ? `var(--cdis-phase-${ph}-ink)` : "var(--cdis-ink)"}>
                     {label}
                   </text>
                 </g>
@@ -300,7 +306,7 @@ export function RoadmapRoad({
             {placed.map(({ f, tt, side }) => {
               const p = at(tt)
               const n = normal(tt)
-              const d = 20 * side
+              const d = 24 * side
               const base = { x: p.x + n.x * d, y: p.y + n.y * d }
               const color = PART_COLOR[f.part]
               const isSel = selected === f.id
@@ -337,7 +343,7 @@ export function RoadmapRoad({
             <g transform={`translate(${me.x} ${me.y - 18})`} aria-hidden>
               <ellipse cx="0" cy="22" rx="18" ry="5" fill="rgb(0 0 0 / 0.15)" />
               <circle r="27" fill={MOOD_COLOR_VAR[avatar.mood]} />
-              <circle r="24" fill="#fff" />
+              <circle r="24" fill="var(--cdis-surface)" />
               <image href={avatar.src} x="-22" y="-22" width="44" height="44" clipPath="url(#rr-avatar)" />
             </g>
           </>

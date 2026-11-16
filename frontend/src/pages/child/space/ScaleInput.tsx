@@ -76,7 +76,9 @@ export function ScaleInput({
               style={
                 selected
                   ? // texte encre sur les couleurs d'humeur (contraste AA), blanc sur la sarcelle
-                    { backgroundColor: color, borderColor: color, color: moodColors ? "var(--cdis-ink)" : undefined }
+                    moodColors
+                      ? { backgroundColor: `color-mix(in oklab, ${color} 22%, white)`, borderColor: color, borderWidth: 3, color: "var(--cdis-ink)" }
+                      : { backgroundColor: color, borderColor: color }
                   : filled
                     ? { borderColor: color, backgroundColor: `color-mix(in oklab, ${color} 14%, white)` }
                     : undefined

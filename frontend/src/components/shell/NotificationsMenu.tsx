@@ -18,9 +18,16 @@ export function NotificationsMenu() {
   const { t, intlLocale } = useI18n()
   const navigate = useNavigate()
   const [items, setItems] = useState<api.NotificationView[]>([])
+  const [loaded, setLoaded] = useState(false)
 
   const load = useCallback(() => {
-    api.listMyNotifications().then(setItems).catch(() => setItems([]))
+    api
+      .listMyNotifications()
+      .then((list) => {
+        setItems(list)
+        setLoaded(true)
+      })
+      .catch(() => setLoaded(true))
   }, [])
 
   useEffect(() => {
@@ -50,7 +57,7 @@ export function NotificationsMenu() {
       >
         <Bell className="size-5" aria-hidden />
         {unread > 0 && (
-          <span className="absolute -end-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-teal px-1 text-[11px] leading-5 font-semibold text-white tabular-nums ring-2 ring-surface">
+          <span className="absolute -end-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-teal px-1 text-xs leading-5 font-semibold text-white tabular-nums ring-2 ring-surface">
             {unread}
           </span>
         )}
@@ -73,7 +80,9 @@ export function NotificationsMenu() {
           )}
         </div>
         <DropdownMenuSeparator />
-        {items.length === 0 ? (
+        {!loaded ? (
+          <p className="px-2 py-6 text-center text-sm text-ink-muted">{t.app.loading}</p>
+        ) : items.length === 0 ? (
           <p className="px-2 py-6 text-center text-sm text-ink-muted">{t.notifications.empty}</p>
         ) : (
           items.slice(0, 8).map((n) => (

@@ -353,7 +353,6 @@ function SessionForm({
             <h3 id={`${ids}-notes`} className="text-base font-semibold text-ink">
               {F.notesSection}
             </h3>
-            <p className="text-sm text-ink-muted">{F.notesHint}</p>
           </div>
 
           {errors.zones && (
@@ -421,7 +420,7 @@ function SessionForm({
               aria-labelledby={`${ids}-z2`}
               rows={3}
               disabled={!sharedEnabled}
-              placeholder={sharedEnabled ? F.zoneShared.placeholder : F.zoneShared.hint}
+              placeholder={sharedEnabled ? F.zoneShared.placeholder : ""}
               value={draft.sharedText}
               onChange={(e) => set({ sharedText: e.target.value })}
               aria-invalid={errors.sharedText ? true : undefined}

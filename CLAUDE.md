@@ -61,7 +61,7 @@ couleur en dur dans un composant.
 | Bordure | #ECE6DC | `border-line` / `border-border` |
 | Bordure de champ (3:1) | #9C9285 | `border-input` |
 | Texte | #1F2A37 | `text-ink` |
-| Texte secondaire | #6B7280 | `text-ink-muted` |
+| Texte secondaire | #5F6673 (AA sur fond gris) | `text-ink-muted` |
 | Primaire (sarcelle) | #0F766E (doux #E6F2F1) | `bg-teal` / `bg-primary`, `bg-teal-soft` |
 | Pop corail / soleil / ciel | #F97360 / #F5B700 / #38BDF8 | `bg-pop-coral`, `bg-pop-sun`, `bg-pop-sky` |
 | Rôles | éducateur #D97706, psychologue #7C3AED, social #2563EB, directeur #0F766E | `bg-role-{educateur,psychologue,social,directeur}` |
@@ -97,6 +97,8 @@ espacements multiples de 4, largeur max du contenu 1200 px (`max-w-page`), icôn
 8. **Aucun texte en dur** : tout passe par `src/i18n/fr.ts` (`const t = useT()`). Les libellés d'énumérations
    (rôles, phases, humeurs, statuts…) y sont typés `satisfies Record<…>`. Les données fictives peuvent contenir du texte.
 9. Pas de thème sombre (les classes `dark:` de shadcn sont neutralisées).
+10. Le rôle du directeur s'affiche « Direction » ; le bloc consentement s'intitule « Consentement au traitement des
+    données ». Les pieds de dialogue (`DialogFooter`) sont blancs avec une bordure haute.
 
 ## Composants partagés (`src/components/cdis/`, importer depuis `@/components/cdis`)
 
@@ -109,13 +111,13 @@ espacements multiples de 4, largeur max du contenu 1200 px (`max-w-page`), icôn
 | `PhaseTrack` | mini-frise des 5 phases (passées pleines, actuelle en surbrillance, à venir en creux) |
 | `MoodBadge` | humeur 1–5 ; `showLabel={false}` = point seul ; `withPrefix` (« Humeur : bien ») + `detail` (« partagée par le psy le 12/11 ») |
 | `RoadmapRoad` | la roadmap **dessinée** (zone pop) : route SVG sinueuse, 5 panneaux de phase (franchies colorées, à venir en pointillés), avatar posé sur la route qui avance une fois (~1,5 s), fanions par partie (`RoadFlag` : pleins = atteints et datés, contour = prochains pas ; clic/Entrée → info-bulle), détour « Retour au centre », légende ; horizontale ≥ 640 px, verticale en dessous ; géométrie calculée par `lib/pathSampler.ts` (pur, sans DOM) |
-| `AvatarLive` | **avatar vivant** de l'en-tête du dossier (zone pop) : portrait 160 px (`src` = `childPortraitSrc(identity)`), halo animé couleur d'humeur (respiration lente 1-2, immobile 3, pulsation + étincelles 4-5), bulles pop en orbite (`buildBubbles(interests)`, 8 max, icône + mot, info-bulle) qui n'empiètent jamais sur le portrait ; sous 640 px les bulles passent en ligne sous le portrait ; `footer` = MoodBadge. Tout est coupé si `prefers-reduced-motion` |
+| `AvatarLive` | **avatar vivant** de l'en-tête du dossier (zone pop) : portrait 160 px (`src` = `childPortraitSrc(identity, mood)` : l'expression — bouche, sourcils — suit l'humeur 1→5, `MOOD_FACE` dans `lib/avatar.ts`), halo animé couleur d'humeur (respiration lente 1-2, immobile 3, pulsation + étincelles 4-5), bulles pop en orbite (`buildBubbles(interests)`, 8 max, icône + mot, info-bulle) qui n'empiètent jamais sur le portrait ; sous 640 px les bulles passent en ligne sous le portrait ; `footer` = MoodBadge. Tout est coupé si `prefers-reduced-motion` |
 | `TextField`, `TextareaField`, `SelectField`, `CheckboxField`, `TagsField`, `FieldGroup`, `Field` | champs de formulaire (`form.tsx`) : libellé visible, aide, erreur reliée par `aria-describedby`, hauteur 44 px |
 | `StatCard` | chiffre clé ; `tone="attention"` ; `trend` (flèche + texte + phrase lecteur d’écran ; ton good / bad / neutral selon le sens métier) |
 | `EmptyState` | icône + phrase + action |
 | `NoteCard` | note partagée reçue : avatar + `RoleBadge` de l’auteur, « partagée le 12/11 à 14 h », séance d’origine, texte replié au-delà de 4 lignes ; `unread` (liseré couleur du rôle) + `onOpen` (marque lue) ; `expanded`/`onExpandedChange` pour garder l’état quand la carte change de liste |
 | `UnreadDivider` | trait « Nouvelles » (`tone="new"`) / « Déjà lues » |
-| `ChildAvatar` | petit avatar enfant (cartes, listes) : image ronde + halo couleur d’humeur ; `size` sm 40 / md 64 / lg 96 / xl 160 px, `sex`. Pour l'en-tête du dossier, utiliser `AvatarLive` |
+| `ChildAvatar` | petit avatar enfant (cartes, listes) : image ronde + halo couleur d’humeur ; `size` sm 40 / md 64 / lg 96 / xl 160 px, `sex` ; expression selon `mood`. Pour l'en-tête du dossier, utiliser `AvatarLive` |
 | `UserAvatar` | photo d’un intervenant (sobre) : `photoUrl` si choisie, sinon avatar de démonstration ; tailles sm/md/lg/xl |
 | `SegmentedControl` | sélecteur secondaire (sous-sections) : liens avec `aria-current`, `hint` (ex. « lecture seule »), défile sur mobile |
 | `FullPageLoader` | chargement plein écran |
@@ -128,11 +130,12 @@ doit y être ajouté.**
 - Les pages et composants importent `@/api` (ou `* as api from "@/api"`), **jamais** `@/mocks` (règle oxlint
   `no-restricted-imports`). Seul `src/api/` lit `src/mocks/`.
 - Fonctions async avec latence simulée de 300 ms (`simulate()`), état persisté dans localStorage (`cdis.demo.db`),
-  session simulée (`cdis.demo.session`), `resetDemo()` (aussi dans le menu utilisateur).
+  session simulée (`cdis.demo.session`), `resetDemo()` (bouton dans l'encart des comptes de démo de `/connexion` uniquement).
 - Les contrôles d'accès sont faits **dans api/** (comme le fera Django) ; l'UI ne fait qu'adapter l'affichage
   avec `lib/access.ts`. Erreurs : `ApiError` (`unauthorized`, `forbidden`, `not_found`, `invalid`, `conflict`).
 - Les types de `src/types/domain.ts` sont le contrat de l'API : les faire évoluer en connaissance de cause.
-- Toujours afficher un état de chargement et un `EmptyState` quand une liste est vide.
+- Toujours afficher un état de chargement, un `EmptyState` quand une liste est vide, et un état d'erreur
+  (`EmptyState` + « Réessayer ») quand un chargement échoue.
 - **Aucune donnée écrite à la main dans un écran** (ni nom, ni texte de séance, ni roadmap, ni chiffre) : toutes les
   données de démo sont dans `src/mocks/donnees.ts` (comptes, enfants, séances, roadmaps initiales et propositions
   en attente, présence, activités, aides, notifications, dossiers clos, journal des accès, exemples du styleguide),
@@ -229,9 +232,12 @@ doit y être ajouté.**
 - Bandeau : objectif, anneau de progression, dernière version validée, « Mettre à jour la roadmap » +
   compteur « n / 5 notes pour l'IA » (intervenants ; le directeur est en lecture seule).
 - `RoadmapRoad` au centre, puis 3 `PartCard` (couleurs = rôles responsables : éducation ambre, psychologique violet,
-  sociale bleu). Une partie non validée affiche TOUJOURS sa version validée + bandeau « Nouvelle proposition de l'IA ».
+  sociale bleu). Une partie non validée affiche TOUJOURS sa version validée + bandeau « Proposition en attente de validation ».
+  Valeurs en direct (jamais figées dans la proposition) : Éducation montre le niveau d'entrée → niveau réel actuel,
+  Sociale le statut actuel des aides (hors refusées).
 - IA : `api.generateRoadmapProposal(childId)` = **point de branchement du futur LLM**. Aujourd'hui `api/aiSimulator.ts`
-  (déterministe, ~2 s de latence) ; il ne lit que les notes pour l'IA, la roadmap validée et les aides.
+  (déterministe, ~2 s de latence) ; il ne lit que les notes pour l'IA, la roadmap validée et les aides. Chaque partie ne lit que les notes de son
+  métier (`PART_SOURCES` : éducation ← éducateur, psychologique ← psy, sociale ← social).
   Une partie sans nouvelle donnée n'est pas reproposée ; les notes lues sont consommées (compteur remis à 0).
 - `ProposalSheet` : avant / après par rubrique (`diff.ts` : ajouts verts, retraits barrés), « Basé sur : note de … »
   (`api.getRoadmapSources` : le texte d'une note pour l'IA n'est montré qu'à son auteur). Responsable : Valider /

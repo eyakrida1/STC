@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react"
 import * as api from "@/api"
 import { Navigate, useNavigate } from "react-router"
-import { AlertCircle, Clock, Eye, EyeOff, Info, Loader2 } from "lucide-react"
+import { AlertCircle, Clock, Eye, EyeOff, Info, Loader2, RotateCcw } from "lucide-react"
+import { toast } from "sonner"
 import { useAuth } from "@/auth/context"
 import { consumeLogoutReason } from "@/auth/logoutReason"
 import { RoleBadge } from "@/components/cdis"
@@ -172,6 +173,18 @@ export function LoginPage() {
                 </li>
               ))}
             </ul>
+            {/* réinitialisation des données de démo : uniquement ici, hors session (POC) */}
+            <button
+              type="button"
+              onClick={async () => {
+                await api.resetDemo()
+                toast.success(t.shell.resetDemoDone)
+              }}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-md text-xs font-medium text-ink-muted hover:text-ink"
+            >
+              <RotateCcw className="size-3.5" aria-hidden />
+              {t.shell.resetDemo}
+            </button>
           </section>
         </div>
       </main>

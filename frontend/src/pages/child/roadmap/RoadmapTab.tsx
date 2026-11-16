@@ -12,7 +12,7 @@ import { childPortraitSrc } from "@/lib/avatar"
 import { emitDataChanged } from "@/lib/events"
 import { formatDate } from "@/lib/format"
 import { cn } from "@/lib/utils"
-import { ROADMAP_PART_KEYS, type AiNoteStatus, type Child, type EducationContent, type Roadmap, type RoadmapPartKey, type RoadmapSource } from "@/types"
+import { ROADMAP_PART_KEYS, type AidApplication, type AidProgram, type AiNoteStatus, type Child, type EducationContent, type Roadmap, type RoadmapPartKey, type RoadmapSource } from "@/types"
 import type { TeamMember } from "../ChildHero"
 import { Celebration } from "./Celebration"
 import { HistorySheet } from "./HistorySheet"
@@ -67,7 +67,17 @@ function buildFlags(roadmap: Roadmap, t: ReturnType<typeof useI18n>["t"]): RoadF
   return flags
 }
 
-export function RoadmapTab({ child, team }: { child: Child; team: TeamMember[] }) {
+export function RoadmapTab({
+  child,
+  team,
+  aids,
+  programs,
+}: {
+  child: Child
+  team: TeamMember[]
+  aids: AidApplication[]
+  programs: AidProgram[]
+}) {
   const { t, intlLocale } = useI18n()
   const R = t.roadmap
   const user = useCurrentUser()
@@ -232,7 +242,7 @@ export function RoadmapTab({ child, team }: { child: Child; team: TeamMember[] }
           phase={child.journey.phase}
           entryDate={stays[0].entryDate}
           returnDate={stays.length > 1 ? stays.at(-1)!.entryDate : null}
-          avatar={{ src: childPortraitSrc(child.identity), name: child.identity.firstName, mood: child.mood.level }}
+          avatar={{ src: childPortraitSrc(child.identity, child.mood.level), name: child.identity.firstName, mood: child.mood.level }}
           flags={flags}
         />
       </section>
@@ -245,6 +255,8 @@ export function RoadmapTab({ child, team }: { child: Child; team: TeamMember[] }
             part={k}
             roadmap={roadmap}
             child={child}
+            aids={aids}
+            programs={programs}
             justValidated={justValidated === k}
             onOpenProposal={() => setProposalPart(k)}
             onOpenHistory={() => setHistoryPart(k)}

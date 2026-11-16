@@ -51,7 +51,7 @@ export function ChildCard({ child }: { child: ChildSummary }) {
             {p.age(child.age)}
             <span aria-hidden> · </span>
             <span className="sr-only">, </span>
-            {t.moods[child.mood]}
+            {t.moodPrefix} : {t.moods[child.mood].toLowerCase()}
           </p>
         </div>
       </div>

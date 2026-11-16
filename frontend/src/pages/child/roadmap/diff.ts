@@ -73,7 +73,15 @@ export function diffPart<K extends RoadmapPartKey>(
       ...neu.map((n) => ({ key: `${field}::${n.text}`, text: n.text, raw: n.raw, status: (oldTexts.has(n.text) ? "kept" : "added") as DiffStatus })),
       ...old.filter((o) => !newTexts.has(o.text)).map((o) => ({ key: `${field}::${o.text}`, text: o.text, raw: o.raw, status: "removed" as DiffStatus })),
     ]
-    return { field, scalar: !!scalar, items, changed: items.some((i) => i.status !== "kept") }
+    // regroupe chaque retrait avec l'ajout qui le remplace (même début de libellé)
+    const head = (s: string) => s.split(/ : | \(| — /)[0]
+    const ordered: DiffItem[] = items.filter((i) => i.status !== "removed")
+    for (const r of items.filter((i) => i.status === "removed")) {
+      const at = ordered.findIndex((i) => i.status === "added" && head(i.text) === head(r.text))
+      if (at >= 0) ordered.splice(at, 0, r)
+      else ordered.push(r)
+    }
+    return { field, scalar: !!scalar, items: ordered, changed: ordered.some((i) => i.status !== "kept") }
   })
 }
 

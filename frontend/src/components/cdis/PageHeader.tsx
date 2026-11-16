@@ -31,13 +31,13 @@ export function PageHeader({
           {back.label}
         </Link>
       )}
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
         {leading}
         <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-semibold tracking-tight text-ink">{title}</h1>
           {description && <p className="mt-1 text-base text-ink-muted">{description}</p>}
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+        {actions && <div className="flex flex-wrap items-center gap-2 sm:justify-end">{actions}</div>}
       </div>
     </header>
   )

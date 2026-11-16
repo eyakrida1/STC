@@ -28,10 +28,10 @@ export function pendingAiNoteCount(childId: string): number {
   return db().sessions.filter((s) => s.childId === childId && s.aiNote && !s.aiNote.consumedByProposalId).length
 }
 
-/** Quelles notes nourrissent quelle partie. */
+/** Quelles notes nourrissent quelle partie : chaque partie ne lit que les notes pour l'IA de son métier. */
 const PART_SOURCES: Record<RoadmapPartKey, ProfessionalRole[]> = {
-  education: ["educateur", "psychologue"],
-  psychologique: ["psychologue", "educateur"],
+  education: ["educateur"],
+  psychologique: ["psychologue"],
   sociale: ["social"],
 }
 
