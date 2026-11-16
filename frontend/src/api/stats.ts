@@ -39,6 +39,8 @@ export interface DashboardStats {
   childrenPerStaff: { userId: string; name: string; role: ProfessionalRole; count: number }[]
   sessionsByRole: Record<ProfessionalRole, number>
   staleUnreadNotes: number
+  /** ouvertures des blocs Santé / Situation judiciaire sur la période (journal des accès) */
+  sensitiveAccess: number
   pendingValidationsByRole: Record<ProfessionalRole, number>
   alerts: {
     noSession21Days: { childId: string; firstName: string; lastName: string; lastSessionDate: ISODate | null }[]
@@ -197,6 +199,7 @@ export function getDashboardStats(period: StatsPeriod = "mois"): Promise<Dashboa
         .sort((a, b) => PRO_ROLES.indexOf(a.role) - PRO_ROLES.indexOf(b.role)),
       sessionsByRole,
       staleUnreadNotes,
+      sensitiveAccess: data.audit.filter((a) => ids.has(a.childId) && inWindow(a.at.slice(0, 10), from, to)).length,
       pendingValidationsByRole,
       alerts: { noSession21Days, roadmapPendingOver7Days },
     }

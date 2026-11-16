@@ -4,6 +4,7 @@
  */
 export { ApiError, SIMULATED_LATENCY_MS, type ApiErrorCode } from "./client"
 export * from "./auth"
+export { listSensitiveAccess, type AuditFilters, type AuditLog, type AuditView } from "./audit"
 export * from "./children"
 export * from "./followup"
 export {

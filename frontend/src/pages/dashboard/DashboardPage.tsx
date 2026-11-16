@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router"
-import { ArrowRight, RotateCcw, Bell, CalendarClock, LogIn, Route, TriangleAlert, Users, UserRoundCheck } from "lucide-react"
+import { ArrowRight, Lock, RotateCcw, Bell, CalendarClock, LogIn, Route, TriangleAlert, Users, UserRoundCheck } from "lucide-react"
 import * as api from "@/api"
 import { EmptyState, PageHeader, RoleBadge, StatCard, type StatTrend } from "@/components/cdis"
 import { Button } from "@/components/ui/button"
@@ -296,6 +296,19 @@ export function DashboardPage() {
               </ChartCard>
               <div className="flex flex-col gap-4">
                 <StatCard label={D.team.staleNotes} value={stats.staleUnreadNotes} tone={stats.staleUnreadNotes > 0 ? "attention" : "default"} />
+                {/* journal des accès aux blocs sensibles : la trace, jamais le contenu */}
+                <div className="flex flex-col gap-3 rounded-card border border-line bg-surface p-5 shadow-card">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-sm font-medium text-ink-muted">{D.access.card}</h3>
+                    <Lock className="size-5 text-ink-muted" aria-hidden />
+                  </div>
+                  <p className="text-3xl font-semibold text-ink tabular-nums">{stats.sensitiveAccess}</p>
+                  <p className="text-sm text-ink-muted">{D.access.cardHint(stats.sensitiveAccess)}</p>
+                  <Link to={`/tableau-de-bord/acces?periode=${period}`} className="inline-flex w-fit items-center gap-1.5 rounded-md text-sm font-medium text-teal hover:underline">
+                    {D.access.open}
+                    <ArrowRight className="size-4 rtl:rotate-180" aria-hidden />
+                  </Link>
+                </div>
                 <div className="flex flex-col gap-3 rounded-card border border-line bg-surface p-5 shadow-card">
                   <h3 className="text-sm font-medium text-ink-muted">{D.team.pending}</h3>
                   <ul className="flex flex-col gap-2">

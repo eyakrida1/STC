@@ -15,6 +15,7 @@ import type {
 } from "@/types"
 import { AID_PROGRAMS, buildActivities, buildAidApplications, buildAttendance, buildNotifications } from "./activity"
 import { buildArchives } from "./archives"
+import { buildAudit } from "./audit"
 import { buildChildren } from "./children"
 import { buildRoadmaps } from "./roadmaps"
 import { buildSessions } from "./sessions"
@@ -38,7 +39,7 @@ export interface DemoDatabase {
   archives: ClosedStay[]
 }
 
-export const DEMO_DB_VERSION = 5
+export const DEMO_DB_VERSION = 6
 
 export function buildSeed(): DemoDatabase {
   const children = buildChildren()
@@ -56,7 +57,7 @@ export function buildSeed(): DemoDatabase {
     aidPrograms: AID_PROGRAMS,
     aidApplications: buildAidApplications(),
     notifications: buildNotifications(),
-    audit: [],
+    audit: buildAudit(),
     archives: buildArchives(),
   }
 }

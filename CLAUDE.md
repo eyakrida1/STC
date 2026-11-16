@@ -147,13 +147,17 @@ doit y être ajouté.**
   - Partie commune : chaque bloc a un propriétaire qui le modifie, les autres lisent
     (identité, parcours, famille, économie, consentement : social ; scolarité, intérêts : éducateur ;
     santé, judiciaire : social + psy ; humeur : psy ; la phase : toute l'équipe). Santé et Judiciaire sont repliés
-    et leur ouverture est tracée (`logBlockOpened`).
+    et **chaque ouverture est tracée** (`logBlockOpened` → journal `audit` : qui, quel enfant, quel bloc, quand ;
+    jamais le contenu), quel que soit le rôle. Message affiché : « chaque ouverture est enregistrée et visible par
+    la direction ».
   - Roadmap : tous lisent, demandent une mise à jour et commentent ; seul le responsable valide / modifie / rejette
     sa partie (éducation : éducateur, psychologique : psy, sociale : social), avec justification s'il modifie ou rejette.
     Mise à jour IA automatique après 5 nouvelles notes pour l'IA.
   - Présence : saisie par l'éducateur, lue par psy et social. Planning d'activités : éducateur, lu par le psy.
     Échelles d'humeur : psy seul (seule l'humeur générale est partagée et anime l'avatar).
     Aides de l'État : gérées par le social, statut visible par l'équipe.
+- **Journal des accès sensibles** : lu **uniquement par le directeur** (`api.listSensitiveAccess`, pôle du
+  directeur), jamais par les intervenants ; non modifiable et non effaçable depuis l'application.
 - **Directeur** : tableau de bord de son pôle (agrégats uniquement, humeur moyenne jamais par enfant) ;
   partie commune et roadmap en **lecture seule** ; **jamais** le contenu des séances (ni privé, ni partagé, ni IA).
 - L'IA ne reçoit jamais : nom, photo, CIN, adresse, notes privées, notes partagées, blocs Santé / Judiciaire.
@@ -168,6 +172,7 @@ doit y être ajouté.**
 | `/enfants` | intervenants | fait — Mes enfants (`pages/children/`) |
 | `/enfants/:childId/:tab?/:section?` | intervenants assignés + directeur (lecture) | fait — dossier enfant (`pages/child/`) ; les 4 onglets sont remplis |
 | `/tableau-de-bord` (`?periode=` mois, trimestre ou année) | directeur (les autres rôles sont redirigés vers leur accueil) | fait — `pages/dashboard/` |
+| `/tableau-de-bord/acces` (`?enfant=`, `?intervenant=`, `?periode=`) | directeur | fait — journal des accès sensibles (`AccessLogPage`) |
 | `/profil` | tous | fait — photo (aperçu), infos modifiables, CIN / rôle / pôle verrouillés, mot de passe (≥ 10 car.) |
 
 ### Mes enfants (`pages/children/`)
@@ -254,4 +259,7 @@ Définies dans `sections.ts` (`SECTIONS_BY_ROLE`) ; une sous-section non autoris
   centre seulement. Équipe : « pour équilibrer la charge, pas pour noter les personnes ».
 - Alertes (en tête sur mobile) : sans séance depuis 21 jours → dossier ; validation de roadmap > 7 jours → onglet
   Roadmap. Le directeur y est en lecture seule (Dossier + Roadmap, aucun bouton d'action, retour « Tableau de bord »).
+- Carte « Accès aux informations sensibles » (Équipe) : nombre d'ouvertures sur la période (`sensitiveAccess`) +
+  lien vers le journal avec la même période. Le journal : filtres enfant / intervenant / période dans l'URL, chaque
+  ligne mène au dossier en lecture seule ; données de démo amorcées par `mocks/audit.ts`.
 - Accès : `RequireAuth` redirige tout rôle non autorisé vers sa page d'accueil avec un toast « Accès non autorisé ».

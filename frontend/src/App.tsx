@@ -8,6 +8,7 @@ import { NotFoundPage } from "@/pages/NotFoundPage"
 import { ProfilePage } from "@/pages/ProfilePage"
 import { ChildrenPage } from "@/pages/children/ChildrenPage"
 import { ChildPage } from "@/pages/child/ChildPage"
+import { AccessLogPage } from "@/pages/dashboard/AccessLogPage"
 import { DashboardPage } from "@/pages/dashboard/DashboardPage"
 import { StyleguidePage } from "@/pages/StyleguidePage"
 
@@ -50,6 +51,14 @@ const router = createBrowserRouter([
         element: (
           <RequireAuth roles={ROUTE_ROLES.dashboard}>
             <DashboardPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "tableau-de-bord/acces",
+        element: (
+          <RequireAuth roles={ROUTE_ROLES.dashboard}>
+            <AccessLogPage />
           </RequireAuth>
         ),
       },
