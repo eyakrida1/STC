@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
+import * as api from "@/api"
 import { Navigate, useNavigate } from "react-router"
 import { AlertCircle, Clock, Eye, EyeOff, Info, Loader2 } from "lucide-react"
 import { useAuth } from "@/auth/context"
@@ -13,15 +14,6 @@ import { useT } from "@/i18n/context"
 import { homePathFor } from "@/lib/access"
 import type { Role } from "@/types"
 
-/** Comptes de démonstration (identifiants publics du POC ; aucune donnée de mocks importée ici). */
-const DEMO_ACCOUNTS: { username: string; role: Role }[] = [
-  { username: "educateur", role: "educateur" },
-  { username: "psy", role: "psychologue" },
-  { username: "social", role: "social" },
-  { username: "directeur", role: "directeur" },
-]
-const DEMO_PASSWORD = "demo"
-
 export function LoginPage() {
   const t = useT()
   const { user, login, initializing } = useAuth()
@@ -32,6 +24,11 @@ export function LoginPage() {
   const [error, setError] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [reason] = useState(() => consumeLogoutReason())
+  // comptes de démonstration : lus dans mocks/donnees.ts via l'API (POC uniquement)
+  const [demoAccounts, setDemoAccounts] = useState<{ username: string; role: Role; password: string }[]>([])
+  useEffect(() => {
+    api.listDemoAccounts().then(setDemoAccounts).catch(() => setDemoAccounts([]))
+  }, [])
 
   if (!initializing && user) return <Navigate to={homePathFor(user.role)} replace />
 
@@ -49,9 +46,9 @@ export function LoginPage() {
     }
   }
 
-  const prefill = (account: string) => {
+  const prefill = (account: string, demoPassword: string) => {
     setUsername(account)
-    setPassword(DEMO_PASSWORD)
+    setPassword(demoPassword)
     setError(false)
     document.getElementById("login-submit")?.focus()
   }
@@ -161,11 +158,11 @@ export function LoginPage() {
             </h2>
             <p className="text-xs text-ink-muted">{t.auth.demoHint}</p>
             <ul className="mt-3 grid grid-cols-2 gap-2">
-              {DEMO_ACCOUNTS.map((a) => (
+              {demoAccounts.map((a) => (
                 <li key={a.username}>
                   <button
                     type="button"
-                    onClick={() => prefill(a.username)}
+                    onClick={() => prefill(a.username, a.password)}
                     aria-pressed={username === a.username}
                     className="flex w-full flex-col items-start gap-1 rounded-lg border border-line bg-surface px-3 py-2 text-start transition-colors hover:border-teal aria-pressed:border-teal aria-pressed:bg-teal-soft"
                   >

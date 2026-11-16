@@ -1,4 +1,5 @@
-// Point d'entrée des données FICTIVES. Importé UNIQUEMENT par src/api/ (règle vérifiée par oxlint).
+// Point d'entrée de la base de démo. Données : donnees.ts ; logique de construction : construire.ts.
+// Importé UNIQUEMENT par src/api/ (règle vérifiée par oxlint).
 import type {
   Activity,
   AidApplication,
@@ -13,13 +14,17 @@ import type {
   Session,
   User,
 } from "@/types"
-import { AID_PROGRAMS, buildActivities, buildAidApplications, buildAttendance, buildNotifications } from "./activity"
-import { buildArchives } from "./archives"
-import { buildAudit } from "./audit"
-import { buildChildren } from "./children"
-import { buildRoadmaps } from "./roadmaps"
-import { buildSessions } from "./sessions"
-import { CREDENTIALS, POLES, USERS } from "./users"
+import { buildArchives, buildAttendance, buildAudit, buildRoadmaps, buildSessions } from "./construire"
+import {
+  AID_PROGRAMS,
+  CREDENTIALS,
+  donneesActivites,
+  donneesDemandesAides,
+  donneesEnfants,
+  donneesNotifications,
+  POLES,
+  USERS,
+} from "./donnees"
 
 export interface DemoDatabase {
   version: number
@@ -42,7 +47,7 @@ export interface DemoDatabase {
 export const DEMO_DB_VERSION = 6
 
 export function buildSeed(): DemoDatabase {
-  const children = buildChildren()
+  const children = donneesEnfants()
   return {
     version: DEMO_DB_VERSION,
     seededAt: new Date().toISOString(),
@@ -53,10 +58,10 @@ export function buildSeed(): DemoDatabase {
     sessions: buildSessions(),
     roadmaps: buildRoadmaps(),
     attendance: buildAttendance(Object.fromEntries(children.map((c) => [c.id, c.journey.entryDate]))),
-    activities: buildActivities(),
+    activities: donneesActivites(),
     aidPrograms: AID_PROGRAMS,
-    aidApplications: buildAidApplications(),
-    notifications: buildNotifications(),
+    aidApplications: donneesDemandesAides(),
+    notifications: donneesNotifications(),
     audit: buildAudit(),
     archives: buildArchives(),
   }

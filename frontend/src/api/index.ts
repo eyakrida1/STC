@@ -24,4 +24,5 @@ export {
   validateRoadmapPart,
 } from "./roadmap"
 export * from "./sessions"
+export { getStyleguideExamples, type StyleguideExamples } from "./styleguide"
 export { getDashboardStats, PERIOD_DAYS, type DashboardStats, type Kpi, type StatsPeriod } from "./stats"

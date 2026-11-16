@@ -1004,7 +1004,7 @@ export const fr = {
       sky: "Ciel",
     },
     typeSamples: {
-      display: "Dossier de Yassine",
+      display: "Dossier enfant",
       h1: "Titre de page — 24 px",
       h2: "Titre de section — 18 px",
       body: "Texte courant — 16 px. L'interface doit être évidente au premier regard, avec peu d'éléments par écran.",
@@ -1027,20 +1027,16 @@ export const fr = {
     },
     field: {
       label: "Prénom de l'enfant",
-      placeholder: "Ex. Yassine",
+      placeholder: "Prénom tel qu’à l’état civil",
       hint: "Tel qu'il figure sur l'acte de naissance.",
     },
     sampleSection: {
       title: "Scolarité",
       description: "Niveau nominal et niveau réel évalué",
       lastSchool: "Dernier établissement",
-      lastSchoolValue: "Collège Ibn Khaldoun, Tunis",
       nominal: "Niveau nominal",
-      nominalValue: "8e année de base",
       actual: "Niveau réel",
-      actualValue: "6e année de base",
       collapsibleTitle: "Santé",
-      collapsibleBody: "Groupe sanguin O+, aucune allergie connue, carnet de vaccination à jour.",
     },
     stats: {
       followed: "Enfants suivis",
@@ -1057,32 +1053,12 @@ export const fr = {
       text: "Quand un collègue partagera une note avec vous, elle apparaîtra ici.",
       action: "Retour au dossier",
     },
-    noteSamples: [
-      {
-        author: "Leila Haddad",
-        role: "psychologue" as const,
-        text: "Yassine a mal dormi cette semaine, éviter les activités le matin.",
-        session: "Consultation du 10 nov. 2026",
-      },
-      {
-        author: "Sami Ayari",
-        role: "social" as const,
-        text: "La famille a obtenu l'aide aux familles nécessiteuses. Le père reprend un travail à mi-temps.",
-        session: "Visite familiale du 6 nov. 2026",
-      },
-    ],
     avatarSizes: "Tailles",
     avatarLiveHint:
       "Halo selon l'humeur : respiration lente (1-2), immobile (3), pulsation et étincelles (4-5). Bulles en orbite à partir de 640 px, en ligne en dessous. Tout s'arrête si prefers-reduced-motion.",
     moodDetail: "partagée par le psy le 12/11",
     roadHint:
       "Horizontale à partir de 640 px, verticale en dessous. L'avatar avance une fois jusqu'à sa phase (immobile si prefers-reduced-motion). Fanions : pleins = atteints, contour = prochains pas.",
-    roadFlags: [
-      { part: "education" as const, label: "Évaluation scolaire initiale" },
-      { part: "psychologique" as const, label: "Partie psychologique validée" },
-      { part: "sociale" as const, label: "Relancer le dossier d'aide" },
-      { part: "education" as const, label: "Visite du centre de formation" },
-    ],
     formSample: {
       text: "Nom complet",
       select: "Niveau",
@@ -1092,8 +1068,6 @@ export const fr = {
     },
     avatarMoods: "Halo selon l'humeur",
     pageHeaderSample: {
-      title: "Dossier de Yassine Ben Salah",
-      description: "15 ans · entré le 3 mars 2026",
       action: "Nouvelle observation",
     },
   },

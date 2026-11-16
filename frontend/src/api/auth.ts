@@ -51,6 +51,15 @@ export function changeMyPassword(oldPassword: string, newPassword: string): Prom
   })
 }
 
+/** Comptes de démonstration proposés sur la page de connexion (POC uniquement). */
+export function listDemoAccounts(): Promise<{ username: string; role: User["role"]; password: string }[]> {
+  return simulate(() =>
+    db()
+      .users.filter((u) => db().credentials[u.username] !== undefined)
+      .map((u) => ({ username: u.username, role: u.role, password: db().credentials[u.username] })),
+  )
+}
+
 /** Équipe du pôle (noms, rôles, photos) — sans données sensibles. */
 export function listTeam(): Promise<Pick<User, "id" | "firstName" | "lastName" | "role" | "avatarSeed">[]> {
   return simulate(() => {

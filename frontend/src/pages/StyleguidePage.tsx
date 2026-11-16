@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
+import * as api from "@/api"
 import {
   AlertTriangle,
   Bell,
@@ -18,6 +19,7 @@ import {
   CheckboxField,
   ChildAvatar,
   EmptyState,
+  FullPageLoader,
   MoodBadge,
   NoteCard,
   PageHeader,
@@ -93,29 +95,6 @@ function Swatch({ name, hex, token, cssVar }: { name: string; hex: string; token
   )
 }
 
-/** Dates d’exemple calculées une fois au chargement du module. */
-const SAMPLE_DATES = [2, 7].map((d) => new Date(Date.now() - d * 864e5).toISOString())
-
-const MOOD_SAMPLES = [
-  { seed: "amira-trabelsi", sex: "F" },
-  { seed: "hamza-gharbi", sex: "M" },
-  { seed: "rania-chaabane", sex: "F" },
-  { seed: "nour-mejri", sex: "F" },
-  { seed: "skander-hammami", sex: "M" },
-] as const
-
-const ROAD_SAMPLE = (() => {
-  const d = (n: number) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10)
-  return { entry: d(-240), returned: d(-60), dates: [d(-150), d(-20), d(20), d(45)] }
-})()
-
-const SAMPLE_INTERESTS = {
-  hobbies: ["Pâtisserie", "Réseaux sociaux", "Danse"],
-  interests: ["Esthétique", "Animaux"],
-  skillsToDevelop: ["Calcul", "Ponctualité", "Confiance en soi"],
-  wishes: "",
-}
-
 function FormSample() {
   const { t } = useI18n()
   const f = t.styleguide.formSample
@@ -139,6 +118,12 @@ export function StyleguidePage() {
   const { t, dir, setDir } = useI18n()
   const s = t.styleguide
   const sec = s.sections
+  // exemples (noms, textes, dates) : lus dans mocks/donnees.ts via l'API, jamais écrits dans la page
+  const [ex, setEx] = useState<api.StyleguideExamples | null>(null)
+  useEffect(() => {
+    api.getStyleguideExamples().then(setEx)
+  }, [])
+  if (!ex) return <FullPageLoader />
 
   return (
     <div className="min-h-dvh bg-sand">
@@ -336,10 +321,10 @@ export function StyleguidePage() {
         <Block title={sec.cards} id="sg-cards">
           <div className="rounded-card border border-dashed border-line p-6">
             <PageHeader
-              title={s.pageHeaderSample.title}
-              description={s.pageHeaderSample.description}
+              title={ex.enTete.title}
+              description={ex.enTete.description}
               back={{ to: "/styleguide", label: t.common.back }}
-              leading={<ChildAvatar seed="yassine-ben-salah" name="Yassine" sex="M" mood={3} size="md" />}
+              leading={<ChildAvatar seed={ex.enfant.seed} name={ex.enfant.name} sex={ex.enfant.sex} mood={3} size="md" />}
               actions={
                 <Button>
                   <NotebookPen data-icon="inline-start" aria-hidden />
@@ -364,15 +349,15 @@ export function StyleguidePage() {
               <dl className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <dt className="text-sm text-ink-muted">{s.sampleSection.lastSchool}</dt>
-                  <dd className="text-base text-ink">{s.sampleSection.lastSchoolValue}</dd>
+                  <dd className="text-base text-ink">{ex.carteScolarite.lastSchool}</dd>
                 </div>
                 <div>
                   <dt className="text-sm text-ink-muted">{s.sampleSection.nominal}</dt>
-                  <dd className="text-base text-ink">{s.sampleSection.nominalValue}</dd>
+                  <dd className="text-base text-ink">{ex.carteScolarite.nominal}</dd>
                 </div>
                 <div>
                   <dt className="text-sm text-ink-muted">{s.sampleSection.actual}</dt>
-                  <dd className="text-base text-ink">{s.sampleSection.actualValue}</dd>
+                  <dd className="text-base text-ink">{ex.carteScolarite.actual}</dd>
                 </div>
               </dl>
             </SectionCard>
@@ -383,7 +368,7 @@ export function StyleguidePage() {
               sensitive
               editors={["social", "psychologue"]}
             >
-              <p className="text-base text-ink">{s.sampleSection.collapsibleBody}</p>
+              <p className="text-base text-ink">{ex.carteScolarite.health}</p>
             </SectionCard>
           </div>
         </Block>
@@ -391,10 +376,10 @@ export function StyleguidePage() {
         {/* ───────── StatCard */}
         <Block title={sec.stats} id="sg-stats">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label={s.stats.followed} value="6" hint={s.stats.followedHint} icon={Users} trend={{ text: "+20 %", direction: "up", tone: "neutral", label: t.pages.dashboard.trendLabel("+20 %") }} />
-            <StatCard label={s.stats.insertion} value="67 %" hint={s.stats.insertionHint} icon={Route} trend={{ text: t.pages.dashboard.pts(-5), direction: "down", tone: "bad", label: t.pages.dashboard.trendLabel(t.pages.dashboard.pts(-5)) }} />
-            <StatCard label={s.stats.returned} value="1" hint={s.stats.returnedHint} icon={CalendarCheck} />
-            <StatCard label={s.stats.pending} value="2" hint={s.stats.pendingHint} icon={AlertTriangle} tone="attention" />
+            <StatCard label={s.stats.followed} value={ex.chiffres.followed} hint={s.stats.followedHint} icon={Users} trend={{ text: ex.chiffres.followedTrend, direction: "up", tone: "neutral", label: t.pages.dashboard.trendLabel(ex.chiffres.followedTrend) }} />
+            <StatCard label={s.stats.insertion} value={ex.chiffres.insertion} hint={s.stats.insertionHint} icon={Route} trend={{ text: t.pages.dashboard.pts(ex.chiffres.insertionTrendPts), direction: "down", tone: "bad", label: t.pages.dashboard.trendLabel(t.pages.dashboard.pts(ex.chiffres.insertionTrendPts)) }} />
+            <StatCard label={s.stats.returned} value={ex.chiffres.returned} hint={s.stats.returnedHint} icon={CalendarCheck} />
+            <StatCard label={s.stats.pending} value={ex.chiffres.pending} hint={s.stats.pendingHint} icon={AlertTriangle} tone="attention" />
           </div>
         </Block>
 
@@ -415,23 +400,23 @@ export function StyleguidePage() {
           <div className="flex max-w-2xl flex-col gap-3">
             <UnreadDivider label={t.notes.unread} count={1} tone="new" />
             <NoteCard
-              authorName={s.noteSamples[0].author}
-              authorRole={s.noteSamples[0].role}
-              authorAvatarSeed="leila-haddad"
-              sharedAt={SAMPLE_DATES[0]}
-              sessionLabel={s.noteSamples[0].session}
-              text={s.noteSamples[0].text}
+              authorName={ex.notes[0].author}
+              authorRole={ex.notes[0].role}
+              authorAvatarSeed={ex.notes[0].authorSeed}
+              sharedAt={ex.notes[0].sharedAt}
+              sessionLabel={ex.notes[0].session}
+              text={ex.notes[0].text}
               unread
               onOpen={() => undefined}
             />
             <UnreadDivider label={t.notes.read} />
             <NoteCard
-              authorName={s.noteSamples[1].author}
-              authorRole={s.noteSamples[1].role}
-              authorAvatarSeed="sami-ayari"
-              sharedAt={SAMPLE_DATES[1]}
-              sessionLabel={s.noteSamples[1].session}
-              text={s.noteSamples[1].text}
+              authorName={ex.notes[1].author}
+              authorRole={ex.notes[1].role}
+              authorAvatarSeed={ex.notes[1].authorSeed}
+              sharedAt={ex.notes[1].sharedAt}
+              sessionLabel={ex.notes[1].session}
+              text={ex.notes[1].text}
             />
           </div>
         </Block>
@@ -443,12 +428,12 @@ export function StyleguidePage() {
               <div className="flex flex-wrap items-end gap-8">
                 {(["sm", "md", "lg", "xl"] as const).map((size) => (
                   <div key={size} className="flex flex-col items-center gap-2">
-                    <ChildAvatar seed="yassine-ben-salah" name="Yassine" sex="M" mood={4} size={size} />
+                    <ChildAvatar seed={ex.enfant.seed} name={ex.enfant.name} sex={ex.enfant.sex} mood={4} size={size} />
                     <span className="font-mono text-xs text-ink-muted">{size}</span>
                   </div>
                 ))}
                 <div className="flex flex-col items-center gap-2">
-                  <UserAvatar seed="leila-haddad" name="Leila Haddad" size="lg" />
+                  <UserAvatar seed={ex.intervenant.seed} name={ex.intervenant.name} size="lg" />
                   <span className="font-mono text-xs text-ink-muted">UserAvatar</span>
                 </div>
               </div>
@@ -458,8 +443,8 @@ export function StyleguidePage() {
                 {MOOD_LEVELS.map((m, i) => (
                   <div key={m} className="flex flex-col items-center gap-3">
                     <ChildAvatar
-                      seed={MOOD_SAMPLES[i].seed}
-                      sex={MOOD_SAMPLES[i].sex}
+                      seed={ex.humeurs[i].seed}
+                      sex={ex.humeurs[i].sex}
                       name={t.moods[m]}
                       mood={m}
                       size="lg"
@@ -479,10 +464,10 @@ export function StyleguidePage() {
             {([2, 3, 5] as MoodLevel[]).map((m) => (
               <div key={m} className="flex flex-col items-center rounded-card border border-line bg-surface p-4 shadow-card sm:p-6">
                 <AvatarLive
-                  src={childAvatarUri("nour-mejri", "F")}
-                  name="Nour"
+                  src={childAvatarUri(ex.avatarVivant.seed, ex.avatarVivant.sex)}
+                  name={ex.avatarVivant.name}
                   mood={m}
-                  bubbles={buildBubbles(SAMPLE_INTERESTS)}
+                  bubbles={buildBubbles(ex.avatarVivant.interests)}
                   footer={<MoodBadge level={m} size="md" withPrefix detail={s.moodDetail} />}
                 />
               </div>
@@ -496,10 +481,10 @@ export function StyleguidePage() {
           <div className="rounded-card border border-line bg-surface p-3 shadow-card sm:p-5">
             <RoadmapRoad
               phase={3}
-              entryDate={ROAD_SAMPLE.entry}
-              returnDate={ROAD_SAMPLE.returned}
-              avatar={{ src: childAvatarUri("yassine-ben-salah", "M"), name: "Yassine", mood: 4 }}
-              flags={s.roadFlags.map((f, i) => ({ id: `sg-${i}`, part: f.part, label: f.label, date: ROAD_SAMPLE.dates[i], reached: i < 2 }))}
+              entryDate={ex.route.entryDate}
+              returnDate={ex.route.returnDate}
+              avatar={{ src: childAvatarUri(ex.enfant.seed, ex.enfant.sex), name: ex.enfant.name, mood: 4 }}
+              flags={ex.route.flags.map((f, i) => ({ id: `sg-${i}`, ...f }))}
             />
           </div>
         </Block>

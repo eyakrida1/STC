@@ -31,7 +31,10 @@ Commandes (dans `frontend/`) : `npm run dev` · `npm run build` · `npm run type
 ```
 frontend/src/
   api/            couche d'accès aux données (SEUL point d'entrée des pages) — async, 300 ms, localStorage
-  mocks/          données FICTIVES (importées uniquement par api/)
+  mocks/          base de démo FICTIVE (importée uniquement par api/) :
+                    donnees.ts   = TOUTES les données de démo (source unique, voir plus bas)
+                    construire.ts = logique qui transforme ces données en enregistrements (aucune donnée)
+                    dates.ts     = dates relatives (daysAgo, monthsAgo…) ; index.ts = buildSeed()
   types/          modèle de données = contrat de la future API Django
   auth/           AuthProvider (session, inactivité 30 min), RequireAuth (routes par rôle)
   i18n/fr.ts      TOUS les textes visibles ; context.ts (useT / useI18n) ; I18nProvider pose lang + dir sur <html>
@@ -130,6 +133,13 @@ doit y être ajouté.**
   avec `lib/access.ts`. Erreurs : `ApiError` (`unauthorized`, `forbidden`, `not_found`, `invalid`, `conflict`).
 - Les types de `src/types/domain.ts` sont le contrat de l'API : les faire évoluer en connaissance de cause.
 - Toujours afficher un état de chargement et un `EmptyState` quand une liste est vide.
+- **Aucune donnée écrite à la main dans un écran** (ni nom, ni texte de séance, ni roadmap, ni chiffre) : toutes les
+  données de démo sont dans `src/mocks/donnees.ts` (comptes, enfants, séances, roadmaps initiales et propositions
+  en attente, présence, activités, aides, notifications, dossiers clos, journal des accès, exemples du styleguide),
+  avec des dates relatives. Les écrans les reçoivent via `api/` (y compris `api.listDemoAccounts` pour la
+  connexion et `api.getStyleguideExamples` pour `/styleguide`). `i18n/fr.ts` ne contient que des textes
+  d'interface. Les listes de référence des formulaires (gouvernorats, groupes sanguins, compétences) restent dans
+  `lib/reference.ts` : ce sont des catalogues, qui viendront plus tard de l'API.
 - Les données sont FICTIVES. 4 comptes (mot de passe `demo`) : `educateur` (Karim Mansouri), `psy` (Leila Haddad),
   `social` (Sami Ayari), `directeur` (Mouna Khelifi), pôle CDIS Tunis. 6 enfants : Yassine (phase 3, scénario de démo),
   Amira (1), Hamza (2, absences), Rania (2, revenue au centre), Nour (4, proposition IA en attente — éducation),
