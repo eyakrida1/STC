@@ -21,20 +21,19 @@ Flux démontré par le POC : séance → partage → roadmap IA (scénario « Ya
   shadcn/ui (style base-nova, sur **Base UI** : on compose avec `render`, pas `asChild`), React Router (`react-router`),
   **Motion** (`import { motion } from "motion/react"` — jamais `framer-motion`), lucide-react, Recharts,
   police Rubik (`@fontsource/rubik`, latin + arabe), avatars DiceBear générés localement (`@dicebear/core` + `collection`).
-- Backend futur : API Django (remplacera `src/api/`).
+- `backend/` : API Django 6.1 (JSON, sans DRF), SQLite par défaut — voir `backend/README.md`. `src/api/` l'appelle
+  en HTTP (mêmes signatures qu'à l'époque des mocks) ; Vite relaie `/api` vers `http://127.0.0.1:8000`.
 
 Commandes (dans `frontend/`) : `npm run dev` · `npm run build` · `npm run typecheck` · `npm run lint`
 (`lint` = oxlint + `scripts/check-logical.mjs`). Lancer `lint` et `build` avant de rendre une étape.
+Backend (dans `backend/`) : `.venv/Scripts/python manage.py runserver` · `… migrate` · `… seed_demo` (recharge la démo) ·
+`… test cdis` (à lancer avant de rendre une étape qui touche le backend).
 
 ## Arborescence
 
 ```
 frontend/src/
-  api/            couche d'accès aux données (SEUL point d'entrée des pages) — async, 300 ms, localStorage
-  mocks/          base de démo FICTIVE (importée uniquement par api/) :
-                    donnees.ts   = TOUTES les données de démo (source unique, voir plus bas)
-                    construire.ts = logique qui transforme ces données en enregistrements (aucune donnée)
-                    dates.ts     = dates relatives (daysAgo, monthsAgo…) ; index.ts = buildSeed()
+  api/            couche d'accès aux données (SEUL point d'entrée des pages) — appels HTTP au backend (client.ts)
   types/          modèle de données = contrat de la future API Django
   auth/           AuthProvider (session, inactivité 30 min), RequireAuth (routes par rôle)
   i18n/fr.ts      TOUS les textes visibles ; context.ts (useT / useI18n) ; I18nProvider pose lang + dir sur <html>
@@ -127,17 +126,21 @@ doit y être ajouté.**
 
 ## Données : règle « pages → api/ uniquement »
 
-- Les pages et composants importent `@/api` (ou `* as api from "@/api"`), **jamais** `@/mocks` (règle oxlint
-  `no-restricted-imports`). Seul `src/api/` lit `src/mocks/`.
-- Fonctions async avec latence simulée de 300 ms (`simulate()`), état persisté dans localStorage (`cdis.demo.db`),
-  session simulée (`cdis.demo.session`), `resetDemo()` (bouton dans l'encart des comptes de démo de `/connexion` uniquement).
-- Les contrôles d'accès sont faits **dans api/** (comme le fera Django) ; l'UI ne fait qu'adapter l'affichage
-  avec `lib/access.ts`. Erreurs : `ApiError` (`unauthorized`, `forbidden`, `not_found`, `invalid`, `conflict`).
+- Les pages et composants importent `@/api` (ou `* as api from "@/api"`) : les données viennent du backend
+  (l'ancienne simulation `src/mocks/` et `api/aiSimulator.ts` a été supprimée).
+- `src/api/client.ts` : `fetch` vers `/api` (ou `VITE_API_URL`), cookie de session Django (`credentials: "include"`),
+  en-tête `X-CSRFToken` sur toute écriture. Un 401 inattendu émet `UNAUTHORIZED_EVENT` → `AuthProvider` revient à la
+  connexion. `resetDemo()` (bouton de `/connexion` uniquement) n'existe qu'en mode démo du backend (`CDIS_DEMO_MODE`).
+- Les contrôles d'accès sont faits **par le backend** (`backend/cdis/access.py`, qui fait foi, port de `lib/access.ts` :
+  garder les deux alignés) ; l'UI ne fait qu'adapter l'affichage avec `lib/access.ts`. Erreurs : `ApiError`
+  (`unauthorized` 401, `forbidden` 403, `not_found` 404, `invalid` 400, `conflict` 409), corps `{ error, message }`.
+- Le backend valide la forme de toute donnée écrite (`backend/cdis/validation.py`) : un nouveau champ du contrat doit
+  y être ajouté, sinon il est ignoré (clé inconnue) ou refusé (clé manquante).
 - Les types de `src/types/domain.ts` sont le contrat de l'API : les faire évoluer en connaissance de cause.
 - Toujours afficher un état de chargement, un `EmptyState` quand une liste est vide, et un état d'erreur
   (`EmptyState` + « Réessayer ») quand un chargement échoue.
 - **Aucune donnée écrite à la main dans un écran** (ni nom, ni texte de séance, ni roadmap, ni chiffre) : toutes les
-  données de démo sont dans `src/mocks/donnees.ts` (comptes, enfants, séances, roadmaps initiales et propositions
+  données de démo sont dans `backend/cdis/seed/donnees.py` (comptes, enfants, séances, roadmaps initiales et propositions
   en attente, présence, activités, aides, notifications, dossiers clos, journal des accès, exemples du styleguide),
   avec des dates relatives. Les écrans les reçoivent via `api/` (y compris `api.listDemoAccounts` pour la
   connexion et `api.getStyleguideExamples` pour `/styleguide`). `i18n/fr.ts` ne contient que des textes
@@ -235,8 +238,9 @@ doit y être ajouté.**
   sociale bleu). Une partie non validée affiche TOUJOURS sa version validée + bandeau « Proposition en attente de validation ».
   Valeurs en direct (jamais figées dans la proposition) : Éducation montre le niveau d'entrée → niveau réel actuel,
   Sociale le statut actuel des aides (hors refusées).
-- IA : `api.generateRoadmapProposal(childId)` = **point de branchement du futur LLM**. Aujourd'hui `api/aiSimulator.ts`
-  (déterministe, ~2 s de latence) ; il ne lit que les notes pour l'IA, la roadmap validée et les aides. Chaque partie ne lit que les notes de son
+- IA : `api.generateRoadmapProposal(childId)` → serveur. **Point de branchement du futur LLM** :
+  `backend/cdis/ai/provider.py` (réglage `CDIS_AI_PROVIDER`) ; aujourd'hui `cdis/ai/simulator.py` (déterministe).
+  Il ne lit que les notes pour l'IA, la roadmap validée et les aides ; sa réponse est validée avant enregistrement. Chaque partie ne lit que les notes de son
   métier (`PART_SOURCES` : éducation ← éducateur, psychologique ← psy, sociale ← social).
   Une partie sans nouvelle donnée n'est pas reproposée ; les notes lues sont consommées (compteur remis à 0).
 - `ProposalSheet` : avant / après par rubrique (`diff.ts` : ajouts verts, retraits barrés), « Basé sur : note de … »
@@ -277,5 +281,6 @@ Définies dans `sections.ts` (`SECTIONS_BY_ROLE`) ; une sous-section non autoris
   Roadmap. Le directeur y est en lecture seule (Dossier + Roadmap, aucun bouton d'action, retour « Tableau de bord »).
 - Carte « Accès aux informations sensibles » (Équipe) : nombre d'ouvertures sur la période (`sensitiveAccess`) +
   lien vers le journal avec la même période. Le journal : filtres enfant / intervenant / période dans l'URL, chaque
-  ligne mène au dossier en lecture seule ; données de démo amorcées par `mocks/audit.ts`.
+  ligne mène au dossier en lecture seule ; données de démo amorcées par `backend/cdis/seed/donnees.py`. Le journal
+  est en ajout seul (l'ORM refuse modification et suppression).
 - Accès : `RequireAuth` redirige tout rôle non autorisé vers sa page d'accueil avec un toast « Accès non autorisé ».

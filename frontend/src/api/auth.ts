@@ -1,83 +1,46 @@
-import type { ProfileUpdate, User } from "@/types"
-import { ApiError, db, getSessionUserId, persist, requireUser, resetDemoSync, setSessionUserId, simulate } from "./client"
+import type { Pole, ProfileUpdate, User } from "@/types"
+import { get, post, put, request } from "./client"
 
 /** Connexion. Message d'erreur volontairement générique (ne dit pas quel champ est faux). */
 export function login(username: string, password: string): Promise<User> {
-  return simulate(() => {
-    const key = username.trim().toLowerCase()
-    const user = db().users.find((u) => u.username === key)
-    if (!user || db().credentials[key] !== password) throw new ApiError("unauthorized")
-    setSessionUserId(user.id)
-    return user
-  })
+  return request<User>("POST", "/auth/login", { username, password }, { silent401: true })
 }
 
 export function logout(): Promise<void> {
-  return simulate(() => {
-    setSessionUserId(null)
-  })
+  return post<void>("/auth/logout")
 }
 
 /** Utilisateur de la session en cours, ou null. */
 export function getCurrentUser(): Promise<User | null> {
-  return simulate(() => {
-    const id = getSessionUserId()
-    return id ? (db().users.find((u) => u.id === id) ?? null) : null
-  })
+  return get<User | null>("/auth/me")
 }
 
 /** Mon profil : seuls photo, nom, prénom, date de naissance, téléphone et e-mail sont modifiables. */
 export function updateMyProfile(update: ProfileUpdate): Promise<User> {
-  return simulate(() => {
-    const me = db().users.find((u) => u.id === requireUser().id)!
-    me.firstName = update.firstName.trim()
-    me.lastName = update.lastName.trim()
-    me.birthDate = update.birthDate
-    me.phone = update.phone.trim()
-    me.email = update.email.trim()
-    me.photoUrl = update.photoUrl
-    persist()
-    return me
-  })
+  const { firstName, lastName, birthDate, phone, email, photoUrl } = update
+  return put<User>("/me/profile", { firstName, lastName, birthDate, phone, email, photoUrl })
 }
 
+/** Erreurs : ApiError("invalid", "wrong_password" | "too_short"). */
 export function changeMyPassword(oldPassword: string, newPassword: string): Promise<void> {
-  return simulate(() => {
-    const me = requireUser()
-    if (db().credentials[me.username] !== oldPassword) throw new ApiError("invalid", "wrong_password")
-    if (newPassword.length < 10) throw new ApiError("invalid", "too_short") // 10 caractères minimum
-    db().credentials[me.username] = newPassword
-    persist()
-  })
+  return post<void>("/me/password", { oldPassword, newPassword })
 }
 
-/** Comptes de démonstration proposés sur la page de connexion (POC uniquement). */
+/** Comptes de démonstration proposés sur la page de connexion (liste vide hors mode démo). */
 export function listDemoAccounts(): Promise<{ username: string; role: User["role"]; password: string }[]> {
-  return simulate(() =>
-    db()
-      .users.filter((u) => db().credentials[u.username] !== undefined)
-      .map((u) => ({ username: u.username, role: u.role, password: db().credentials[u.username] })),
-  )
+  return get("/demo/accounts")
 }
 
 /** Équipe du pôle (noms, rôles, photos) — sans données sensibles. */
 export function listTeam(): Promise<Pick<User, "id" | "firstName" | "lastName" | "role" | "avatarSeed">[]> {
-  return simulate(() => {
-    const me = requireUser()
-    return db()
-      .users.filter((u) => u.poleId === me.poleId)
-      .map(({ id, firstName, lastName, role, avatarSeed }) => ({ id, firstName, lastName, role, avatarSeed }))
-  })
+  return get("/team")
 }
 
-export function getMyPole() {
-  return simulate(() => {
-    const me = requireUser()
-    return db().poles.find((p) => p.id === me.poleId)!
-  })
+export function getMyPole(): Promise<Pole> {
+  return get<Pole>("/pole")
 }
 
-/** Remet toutes les données de démonstration à zéro. */
+/** Remet toutes les données de démonstration à zéro (mode démo du backend uniquement). */
 export function resetDemo(): Promise<void> {
-  return simulate(() => resetDemoSync())
+  return post<void>("/demo/reset")
 }

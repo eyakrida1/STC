@@ -118,7 +118,7 @@ export function StyleguidePage() {
   const { t, dir, setDir } = useI18n()
   const s = t.styleguide
   const sec = s.sections
-  // exemples (noms, textes, dates) : lus dans mocks/donnees.ts via l'API, jamais écrits dans la page
+  // exemples (noms, textes, dates) : servis par le backend, jamais écrits dans la page
   const [ex, setEx] = useState<api.StyleguideExamples | null>(null)
   useEffect(() => {
     api.getStyleguideExamples().then(setEx)

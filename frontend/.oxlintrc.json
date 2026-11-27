@@ -9,23 +9,11 @@
       {
         "paths": [
           { "name": "framer-motion", "message": "Utiliser `motion/react` (paquet motion)." }
-        ],
-        "patterns": [
-          {
-            "group": ["@/mocks", "@/mocks/*", "**/mocks", "**/mocks/*"],
-            "message": "Les pages et composants passent par src/api/ uniquement : jamais d'import direct des mocks."
-          }
         ]
       }
     ]
   },
   "overrides": [
-    {
-      "files": ["src/api/**", "src/mocks/**"],
-      "rules": {
-        "no-restricted-imports": ["error", { "paths": [{ "name": "framer-motion", "message": "Utiliser `motion/react`." }] }]
-      }
-    },
     {
       "files": ["src/components/ui/**"],
       "rules": { "react/only-export-components": "off" }

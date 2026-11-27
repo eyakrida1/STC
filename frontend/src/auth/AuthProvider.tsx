@@ -31,26 +31,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async (reason: LogoutReason = "manual") => {
     rememberLogoutReason(reason)
-    await api.logout()
+    try {
+      await api.logout()
+    } catch {
+      /* serveur injoignable : la session locale est fermée quand même */
+    }
     setUser(null)
   }, [])
 
   // Restauration de session au démarrage (expirée si inactif depuis plus de 30 min, même onglet fermé).
   useEffect(() => {
     let cancelled = false
-    api.getCurrentUser().then(async (u) => {
-      if (cancelled) return
-      if (u && Date.now() - readLastActivity() > INACTIVITY_TIMEOUT_MS) {
-        await logout("inactivity")
-      } else {
-        setUser(u)
-      }
-      setInitializing(false)
-    })
+    api
+      .getCurrentUser()
+      .catch(() => null) // backend injoignable : écran de connexion plutôt qu'un chargement sans fin
+      .then(async (u) => {
+        if (cancelled) return
+        if (u && Date.now() - readLastActivity() > INACTIVITY_TIMEOUT_MS) {
+          await logout("inactivity")
+        } else {
+          setUser(u)
+        }
+        setInitializing(false)
+      })
     return () => {
       cancelled = true
     }
   }, [logout])
+
+  // Session refusée par le serveur (expirée après 30 min sans requête, compte désactivé…) : retour à la connexion.
+  useEffect(() => {
+    if (!user) return
+    const onUnauthorized = () => {
+      rememberLogoutReason("inactivity")
+      setUser(null)
+    }
+    window.addEventListener(api.UNAUTHORIZED_EVENT, onUnauthorized)
+    return () => window.removeEventListener(api.UNAUTHORIZED_EVENT, onUnauthorized)
+  }, [user])
 
   // Suivi d'activité + déconnexion automatique après 30 minutes d'inactivité (postes partagés).
   useEffect(() => {

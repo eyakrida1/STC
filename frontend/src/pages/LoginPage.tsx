@@ -25,7 +25,7 @@ export function LoginPage() {
   const [error, setError] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [reason] = useState(() => consumeLogoutReason())
-  // comptes de démonstration : lus dans mocks/donnees.ts via l'API (POC uniquement)
+  // comptes de démonstration : servis par le backend (mode démo uniquement)
   const [demoAccounts, setDemoAccounts] = useState<{ username: string; role: Role; password: string }[]>([])
   useEffect(() => {
     api.listDemoAccounts().then(setDemoAccounts).catch(() => setDemoAccounts([]))

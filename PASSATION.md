@@ -11,8 +11,8 @@ Document à donner à une nouvelle discussion avec une IA pour reprendre le proj
 4. Le dépôt lui-même (dossier `frontend/`) si l'outil peut lire les fichiers ; sinon, au minimum :
    - `frontend/src/types/domain.ts` (modèle de données = contrat de la future API Django) ;
    - `frontend/src/lib/access.ts` (droits par rôle) ;
-   - `frontend/src/mocks/donnees.ts` (toutes les données de démo) ;
-   - `frontend/src/api/` (couche d'accès simulée, dont `aiSimulator.ts` et `roadmap.ts` pour l'IA) ;
+   - `backend/cdis/seed/donnees.py` (toutes les données de démo) ;
+   - `frontend/src/api/` (appels HTTP au backend) et `backend/cdis/ai/` (simulateur d'IA et point de branchement) ;
    - `frontend/src/i18n/fr.ts` (tous les textes d'interface).
 
 ### Message de départ suggéré
@@ -30,7 +30,7 @@ psychologue, intervenant social) suivent chaque enfant, enregistrent des **séan
 note partagée, note pour l'IA). Une **IA** propose une **roadmap** commune ; chaque responsable valide sa partie
 (éducation / psychologique / sociale). Un **directeur** pilote avec un tableau de bord. Données FICTIVES.
 
-Démarrer : `cd frontend && npm install && npm run dev`.
+Démarrer : backend (`backend/README.md` : venv, `migrate`, `seed_demo`, `runserver`) puis `cd frontend && npm install && npm run dev`.
 
 ### Rôles
 
@@ -48,8 +48,8 @@ Démarrer : `cd frontend && npm install && npm run dev`.
 - Chaque partie ne lit que les notes de son métier (éducation ← éducateur, psychologique ← psy, sociale ← social).
 - Déclenchement : bouton « Mettre à jour la roadmap » ou automatiquement à 5 notes pour l'IA non utilisées.
 - Chaque changement cite ses notes sources ; le responsable valide / modifie (justification) / rejette (justification).
-- Implémentation : `frontend/src/api/aiSimulator.ts` (règles par mots-clés, déterministe). Point de branchement du
-  futur vrai modèle : `generateRoadmapProposal(childId)` dans `frontend/src/api/roadmap.ts`.
+- Implémentation : `backend/cdis/ai/simulator.py` (règles par mots-clés, déterministe). Point de branchement du
+  futur vrai modèle : `backend/cdis/ai/provider.py` (réglage `CDIS_AI_PROVIDER`).
 
 ## Historique (commits sur la branche `master`, rien n'est poussé)
 
@@ -70,7 +70,7 @@ Démarrer : `cd frontend && npm install && npm run dev`.
 
 - Formulaires de séance en panneau latéral large ; édition des blocs du dossier en panneau latéral.
 - « Pop » (couleurs vives, animations) réservée à l'avatar et à la roadmap ; exceptions documentées dans CLAUDE.md.
-- Aucune donnée écrite à la main dans un écran : tout vient de `mocks/donnees.ts` via `api/`.
+- Aucune donnée écrite à la main dans un écran : tout vient de `backend/cdis/seed/donnees.py` via `api/`.
 - Le journal des accès sensibles n'est lisible que par le directeur.
 - Notes pour l'IA : chaque partie ne lit que les notes de son métier (option A).
 - « Consentement » = consentement du tuteur au **traitement des données** (renommé en ce sens).
@@ -113,7 +113,8 @@ Non faites (à reprendre) :
 - **Vraie IA** : choisir où elle tourne (serveur du centre ou service externe — confidentialité de données de
   mineurs) ; appel côté serveur avec données anonymisées ; réponse JSON structurée (même format que la simulation)
   validée avant affichage ; validation humaine maintenue.
-- **Backend Django** : remplacer `frontend/src/api/` (mêmes signatures), vraies permissions, journal d'audit
-  inviolable, base de données.
+- ~~Backend Django~~ : **fait** (`backend/`, voir `backend/README.md`) — API JSON, permissions par rôle côté serveur,
+  sessions + CSRF, journal d'audit en ajout seul, validation du contrat, 31 tests ; `frontend/src/api/` appelle l'API
+  en HTTP avec les mêmes signatures. Reste : PostgreSQL et déploiement, écran d'administration dans l'app (aujourd'hui `/admin/` Django).
 - **Avatar à partir de la photo** généré sur le serveur du centre (la photo ne sort jamais).
 - Dépôt : la branche principale attendue est `main`, le travail est sur `master` ; rien n'a été poussé.
